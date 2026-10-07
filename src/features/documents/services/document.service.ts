@@ -538,7 +538,22 @@ export const documentService = {
   },
 
   /**
-   * Securely downloads a document version file and triggers an audit log entry (Rule 38 & 39).
+   * Generates a signed view URL for previewing the file in browser (1 hour valid).
+   */
+  async getFileViewUrl(storagePath: string): Promise<string> {
+    const { data, error } = await supabase.storage
+      .from('ngo-documents')
+      .createSignedUrl(storagePath, 3600)
+
+    if (error || !data?.signedUrl) {
+      throw new Error(error?.message || 'Failed to generate document preview link.')
+    }
+
+    return data.signedUrl
+  },
+
+  /**
+   * Securely downloads a document version file with proper filename and triggers an audit log entry.
    */
   async downloadFile(
     documentId: string,
@@ -546,7 +561,37 @@ export const documentService = {
     originalFilename: string,
     versionId?: string
   ): Promise<void> {
-    // 1. Download file blob from private storage
+    // 1. Record audit log via secure RPC
+    try {
+      await supabase.rpc('log_document_download', {
+        p_document_id: documentId,
+        p_version_id: versionId || undefined,
+      })
+    } catch (auditErr) {
+      console.warn('Could not record download audit log:', auditErr)
+    }
+
+    // 2. Request signed download URL from Supabase with Content-Disposition attachment filename
+    const { data: signedData } = await supabase.storage
+      .from('ngo-documents')
+      .createSignedUrl(storagePath, 120, {
+        download: originalFilename,
+      })
+
+    if (signedData?.signedUrl) {
+      const a = document.createElement('a')
+      a.style.display = 'none'
+      a.href = signedData.signedUrl
+      a.download = originalFilename
+      document.body.appendChild(a)
+      a.click()
+      setTimeout(() => {
+        document.body.removeChild(a)
+      }, 5000)
+      return
+    }
+
+    // 3. Fallback: Download file blob and trigger browser download with delay before revoking
     const { data: blob, error: downloadError } = await supabase.storage
       .from('ngo-documents')
       .download(storagePath)
@@ -555,21 +600,18 @@ export const documentService = {
       throw new Error(downloadError?.message || 'Failed to download document file.')
     }
 
-    // 2. Record audit log via secure RPC
-    await supabase.rpc('log_document_download', {
-      p_document_id: documentId,
-      p_version_id: versionId || undefined,
-    })
-
-    // 3. Trigger browser download safely
-    const url = window.URL.createObjectURL(blob)
+    const fileBlob = new Blob([blob], { type: blob.type || 'application/octet-stream' })
+    const url = window.URL.createObjectURL(fileBlob)
     const a = document.createElement('a')
+    a.style.display = 'none'
     a.href = url
     a.download = originalFilename
     document.body.appendChild(a)
     a.click()
-    document.body.removeChild(a)
-    window.URL.revokeObjectURL(url)
+    setTimeout(() => {
+      document.body.removeChild(a)
+      window.URL.revokeObjectURL(url)
+    }, 30000)
   },
 
   /**

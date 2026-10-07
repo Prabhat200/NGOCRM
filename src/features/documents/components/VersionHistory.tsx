@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Download, History, Plus, FileText, CheckCircle2 } from 'lucide-react'
+import { Download, History, Plus, FileText, CheckCircle2, Eye } from 'lucide-react'
 import type { DocumentVersion } from '../types/document.types'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -16,6 +16,7 @@ export interface VersionHistoryProps {
   canUploadVersion: boolean
   organizationId: string
   timezone?: string
+  onViewVersion?: (version: DocumentVersion) => void
 }
 
 export function VersionHistory({
@@ -25,6 +26,7 @@ export function VersionHistory({
   canUploadVersion,
   organizationId,
   timezone,
+  onViewVersion,
 }: VersionHistoryProps) {
   const [isUploadOpen, setIsUploadOpen] = useState(false)
   const [downloadingVersionId, setDownloadingVersionId] = useState<string | null>(null)
@@ -113,17 +115,31 @@ export function VersionHistory({
                         </span>
                       </div>
 
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        disabled={isDownloading}
-                        onClick={() => handleDownload(v)}
-                        className="gap-1.5 text-xs h-7 self-start sm:self-auto"
-                      >
-                        <Download className="w-3.5 h-3.5" aria-hidden="true" />
-                        <span>{isDownloading ? 'Downloading...' : 'Download'}</span>
-                      </Button>
+                      <div className="flex items-center gap-1.5 self-start sm:self-auto">
+                        {onViewVersion && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => onViewVersion(v)}
+                            className="gap-1.5 text-xs h-7"
+                          >
+                            <Eye className="w-3.5 h-3.5" aria-hidden="true" />
+                            <span>View</span>
+                          </Button>
+                        )}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={isDownloading}
+                          onClick={() => handleDownload(v)}
+                          className="gap-1.5 text-xs h-7"
+                        >
+                          <Download className="w-3.5 h-3.5" aria-hidden="true" />
+                          <span>{isDownloading ? 'Downloading...' : 'Download'}</span>
+                        </Button>
+                      </div>
                     </div>
 
                     <div className="text-xs text-slate-600 flex flex-wrap items-center gap-x-3 gap-y-1">

@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import {
   ArrowLeft,
   Download,
+  Eye,
   Star,
   UploadCloud,
   Shield,
@@ -25,7 +26,10 @@ import { UploadVersionDialog } from '../components/UploadVersionDialog'
 import { ManageAccessDialog } from '../components/ManageAccessDialog'
 import { EditMetadataDialog } from '../components/EditMetadataDialog'
 import { ArchiveConfirmDialog, RestoreConfirmDialog } from '../components/ArchiveConfirmDialog'
+import { DocumentViewerModal } from '../components/DocumentViewerModal'
+import { DocumentInlinePreview } from '../components/DocumentInlinePreview'
 import type { EditDocumentMetadataFormValues } from '../schemas/document.schema'
+import type { DocumentVersion } from '../types/document.types'
 import {
   useDocument,
   useDocumentVersions,
@@ -55,6 +59,8 @@ export function DocumentDetailPage() {
   const [isRestoreOpen, setIsRestoreOpen] = useState(false)
   const [isEditOpen, setIsEditOpen] = useState(false)
   const [isDownloading, setIsDownloading] = useState(false)
+  const [isViewerOpen, setIsViewerOpen] = useState(false)
+  const [viewerVersion, setViewerVersion] = useState<DocumentVersion | null>(null)
 
   const { data: document, isLoading, isError } = useDocument(documentId)
   const { data: versions = [] } = useDocumentVersions(documentId)
@@ -264,6 +270,22 @@ export function DocumentDetailPage() {
               <Star className={`w-4 h-4 ${document.is_favorite ? 'fill-amber-400' : ''}`} />
             </button>
 
+            {/* View Button */}
+            {document.current_version && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setViewerVersion(document.current_version || null)
+                  setIsViewerOpen(true)
+                }}
+                className="gap-1.5 text-xs h-9 bg-blue-50/70 text-blue-700 border-blue-200 hover:bg-blue-100 hover:text-blue-800 font-medium"
+              >
+                <Eye className="w-4 h-4" />
+                <span>View</span>
+              </Button>
+            )}
+
             {/* Download Button */}
             {canDownload && document.current_version && (
               <Button
@@ -359,7 +381,20 @@ export function DocumentDetailPage() {
 
       {/* Tab Contents */}
       {activeTab === 'overview' && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="space-y-6">
+          {/* Inline Document Preview */}
+          {document.current_version && (
+            <DocumentInlinePreview
+              document={document}
+              onExpand={() => {
+                setViewerVersion(document.current_version || null)
+                setIsViewerOpen(true)
+              }}
+              onDownload={canDownload ? handleDownloadCurrent : undefined}
+            />
+          )}
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Metadata Card (Rule 36) */}
           <div className="lg:col-span-2 space-y-6">
             <Card>
@@ -470,6 +505,7 @@ export function DocumentDetailPage() {
             </Card>
           </div>
         </div>
+        </div>
       )}
 
       {activeTab === 'versions' && (
@@ -480,6 +516,10 @@ export function DocumentDetailPage() {
           canUploadVersion={canUploadVersion}
           organizationId={document.organization_id}
           timezone={organization?.timezone}
+          onViewVersion={(v) => {
+            setViewerVersion(v)
+            setIsViewerOpen(true)
+          }}
         />
       )}
 
@@ -594,6 +634,17 @@ export function DocumentDetailPage() {
         onClose={() => setIsRestoreOpen(false)}
         onConfirm={handleRestore}
         isPending={restoreMutation.isPending}
+      />
+
+      <DocumentViewerModal
+        isOpen={isViewerOpen}
+        onClose={() => {
+          setIsViewerOpen(false)
+          setViewerVersion(null)
+        }}
+        document={document}
+        version={viewerVersion || document.current_version}
+        onDownload={canDownload ? handleDownloadCurrent : undefined}
       />
     </div>
   )

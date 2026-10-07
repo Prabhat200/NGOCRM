@@ -69,8 +69,8 @@ BEGIN
     RETURN FALSE;
   END IF;
 
-  -- Verify document download permission and view rights
-  IF NOT has_permission('documents.download') THEN
+  -- Verify document view rights and permissions
+  IF NOT (has_permission('documents.view') OR has_permission('documents.download')) THEN
     RETURN FALSE;
   END IF;
 

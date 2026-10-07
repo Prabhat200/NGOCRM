@@ -50,7 +50,7 @@ AS $$
 DECLARE
   v_uid UUID := auth.uid();
   v_profile RECORD;
-  v_member RECORD;
+  v_member_json JSONB := NULL;
   v_org RECORD;
   v_roles JSONB;
   v_permissions TEXT[];
@@ -75,8 +75,17 @@ BEGIN
 
   -- 2. Load linked member (if any)
   IF v_profile.member_id IS NOT NULL THEN
-    SELECT m.id, m.membership_number, m.first_name, m.middle_name, m.last_name, m.position_title, m.status AS member_status
-    INTO v_member
+    SELECT jsonb_build_object(
+      'id', m.id,
+      'membership_number', m.membership_number,
+      'first_name', m.first_name,
+      'middle_name', m.middle_name,
+      'last_name', m.last_name,
+      'full_name', TRIM(CONCAT(m.first_name, ' ', COALESCE(m.middle_name, ''), ' ', m.last_name)),
+      'position_title', m.position_title,
+      'status', m.status
+    )
+    INTO v_member_json
     FROM members m
     WHERE m.id = v_profile.member_id;
   END IF;
@@ -116,23 +125,14 @@ BEGIN
       'status', v_profile.status,
       'last_active_at', v_profile.last_active_at
     ),
-    'member', CASE WHEN v_member.id IS NOT NULL THEN jsonb_build_object(
-      'id', v_member.id,
-      'membership_number', v_member.membership_number,
-      'first_name', v_member.first_name,
-      'middle_name', v_member.middle_name,
-      'last_name', v_member.last_name,
-      'full_name', TRIM(CONCAT(v_member.first_name, ' ', COALESCE(v_member.middle_name, ''), ' ', v_member.last_name)),
-      'position_title', v_member.position_title,
-      'status', v_member.member_status
-    ) ELSE NULL END,
-    'organization', jsonb_build_object(
+    'member', v_member_json,
+    'organization', CASE WHEN v_org.id IS NOT NULL THEN jsonb_build_object(
       'id', v_org.id,
       'name', v_org.name,
       'short_name', v_org.short_name,
       'logo_url', v_org.logo_url,
       'timezone', v_org.timezone
-    ),
+    ) ELSE NULL END,
     'roles', v_roles,
     'permissions', to_jsonb(v_permissions)
   );

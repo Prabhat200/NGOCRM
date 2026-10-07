@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -10,6 +10,10 @@ import {
   Briefcase,
   CheckCircle2,
   AlertCircle,
+  Upload,
+  Camera,
+  Trash2,
+  Loader2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -47,12 +51,17 @@ export function ProfilePage() {
   const { user, profile, member, organization, roles, refreshProfile } = useAuth()
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
+  const [showUrlInput, setShowUrlInput] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting, isDirty },
     reset,
+    setValue,
+    watch,
   } = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
@@ -62,6 +71,109 @@ export function ProfilePage() {
     },
   })
 
+  useEffect(() => {
+    if (profile) {
+      reset({
+        display_name: profile.display_name || '',
+        phone: profile.phone || '',
+        avatar_url: profile.avatar_url || '',
+      })
+    }
+  }, [profile, reset])
+
+  const watchedAvatarUrl = watch('avatar_url')
+  const currentAvatar = watchedAvatarUrl || profile?.avatar_url || null
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      setErrorMessage('Please select a valid image file (JPEG, PNG, WebP, GIF).')
+      return
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setErrorMessage('Image size must be 5MB or less.')
+      return
+    }
+
+    setIsUploadingAvatar(true)
+    setErrorMessage(null)
+    setSuccessMessage(null)
+
+    try {
+      const cleanName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
+      const filePath = `${user?.id || 'profile'}/${Date.now()}-${cleanName}`
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true,
+        })
+
+      if (uploadError) {
+        throw uploadError
+      }
+
+      const { data: urlData } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(uploadData.path)
+
+      const publicUrl = urlData.publicUrl
+
+      setValue('avatar_url', publicUrl, { shouldDirty: true })
+
+      // Persist immediately to profile
+      const { error: rpcError } = await supabase.rpc('update_my_profile', {
+        p_avatar_url: publicUrl,
+      })
+
+      if (rpcError) {
+        throw rpcError
+      }
+
+      await refreshProfile()
+      setSuccessMessage('Profile picture updated successfully.')
+    } catch (err: unknown) {
+      console.error('Failed to upload profile picture:', err)
+      const message = err instanceof Error ? err.message : 'Failed to upload profile picture.'
+      setErrorMessage(message)
+    } finally {
+      setIsUploadingAvatar(false)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+    }
+  }
+
+  const handleRemoveAvatar = async () => {
+    setIsUploadingAvatar(true)
+    setErrorMessage(null)
+    setSuccessMessage(null)
+
+    try {
+      setValue('avatar_url', '', { shouldDirty: true })
+
+      const { error: rpcError } = await supabase.rpc('update_my_profile', {
+        p_avatar_url: '',
+      })
+
+      if (rpcError) {
+        throw rpcError
+      }
+
+      await refreshProfile()
+      setSuccessMessage('Profile picture removed.')
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to remove profile picture.'
+      setErrorMessage(message)
+    } finally {
+      setIsUploadingAvatar(false)
+    }
+  }
+
   const onSubmit = async (values: ProfileFormValues) => {
     setSuccessMessage(null)
     setErrorMessage(null)
@@ -70,7 +182,7 @@ export function ProfilePage() {
       const { error } = await supabase.rpc('update_my_profile', {
         p_display_name: values.display_name?.trim() || undefined,
         p_phone: values.phone?.trim() || undefined,
-        p_avatar_url: values.avatar_url?.trim() || undefined,
+        p_avatar_url: values.avatar_url !== undefined ? values.avatar_url.trim() : undefined,
       })
 
       if (error) {
@@ -93,18 +205,43 @@ export function ProfilePage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
+      {/* Hidden File Input for Avatars */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        className="hidden"
+        onChange={handleFileSelect}
+        disabled={isUploadingAvatar}
+      />
+
       {/* Header Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 bg-white rounded-xl border border-slate-200 shadow-xs">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-blue-700 text-white flex items-center justify-center font-bold text-xl shadow-xs shrink-0">
-            {profile?.avatar_url ? (
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            title="Click to change profile picture"
+            className="relative group w-16 h-16 rounded-2xl bg-blue-700 text-white flex items-center justify-center font-bold text-xl shadow-xs shrink-0 overflow-hidden cursor-pointer"
+          >
+            {currentAvatar ? (
               <img
-                src={profile.avatar_url}
-                alt={profile.display_name || 'Avatar'}
+                src={currentAvatar}
+                alt={profile?.display_name || 'Avatar'}
                 className="w-full h-full rounded-2xl object-cover"
               />
             ) : (
               <span>{initials}</span>
+            )}
+
+            {/* Quick hover camera indicator */}
+            <div className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+              <Camera className="w-5 h-5" />
+            </div>
+
+            {isUploadingAvatar && (
+              <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white">
+                <Loader2 className="w-5 h-5 animate-spin" />
+              </div>
             )}
           </div>
           <div>
@@ -127,6 +264,22 @@ export function ProfilePage() {
             </p>
           </div>
         </div>
+
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={isUploadingAvatar}
+          onClick={() => fileInputRef.current?.click()}
+          className="gap-2 text-xs font-semibold self-start sm:self-auto h-9"
+        >
+          {isUploadingAvatar ? (
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+          ) : (
+            <Camera className="w-3.5 h-3.5 text-blue-600" />
+          )}
+          <span>{currentAvatar ? 'Change Photo' : 'Upload Photo'}</span>
+        </Button>
       </div>
 
       {successMessage && (
@@ -156,11 +309,104 @@ export function ProfilePage() {
             <CardHeader>
               <CardTitle className="text-base">Personal Details</CardTitle>
               <CardDescription>
-                Update your display preferences and contact information.
+                Update your profile picture, display preferences, and contact information.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+                {/* Profile Picture Uploader Section */}
+                <div className="space-y-3 pb-2 border-b border-slate-100">
+                  <Label className="text-sm font-semibold text-slate-900 block">
+                    Profile Picture
+                  </Label>
+
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 rounded-xl border border-slate-200 bg-slate-50/70">
+                    <div className="relative group w-16 h-16 rounded-2xl bg-blue-700 text-white flex items-center justify-center font-bold text-xl shadow-xs shrink-0 overflow-hidden">
+                      {currentAvatar ? (
+                        <img
+                          src={currentAvatar}
+                          alt={profile?.display_name || 'Avatar'}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span>{initials}</span>
+                      )}
+
+                      {isUploadingAvatar && (
+                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white">
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="space-y-2 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={isUploadingAvatar}
+                          onClick={() => fileInputRef.current?.click()}
+                          className="gap-2 text-xs h-8.5 bg-white hover:bg-slate-50 border-slate-300 font-semibold text-slate-800"
+                        >
+                          {isUploadingAvatar ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <Upload className="w-3.5 h-3.5 text-blue-600" />
+                          )}
+                          <span>{currentAvatar ? 'Upload New Photo' : 'Upload Photo'}</span>
+                        </Button>
+
+                        {currentAvatar && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            disabled={isUploadingAvatar}
+                            onClick={handleRemoveAvatar}
+                            className="gap-1.5 text-xs h-8.5 text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>Remove</span>
+                          </Button>
+                        )}
+                      </div>
+
+                      <p className="text-[11px] text-slate-500 leading-normal">
+                        JPG, PNG, WebP or GIF up to 5MB. Square aspect ratio recommended.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Secondary/Optional direct URL toggle */}
+                  <div className="pt-0.5">
+                    <button
+                      type="button"
+                      onClick={() => setShowUrlInput(!showUrlInput)}
+                      className="text-[11px] text-blue-600 hover:text-blue-700 underline font-medium cursor-pointer"
+                    >
+                      {showUrlInput ? 'Hide image URL field' : 'Or enter an image URL instead'}
+                    </button>
+                    {showUrlInput && (
+                      <div className="mt-2 space-y-1">
+                        <Input
+                          id="avatar_url"
+                          type="url"
+                          placeholder="https://example.org/avatar.jpg"
+                          className="mt-1"
+                          error={!!errors.avatar_url}
+                          {...register('avatar_url')}
+                        />
+                        {errors.avatar_url && (
+                          <p className="mt-1 text-xs text-rose-600" role="alert">
+                            {errors.avatar_url.message}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 <div>
                   <Label htmlFor="display_name">Preferred Display Name</Label>
                   <Input
@@ -190,23 +436,6 @@ export function ProfilePage() {
                   {errors.phone && (
                     <p className="mt-1 text-xs text-rose-600" role="alert">
                       {errors.phone.message}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <Label htmlFor="avatar_url">Avatar Image URL</Label>
-                  <Input
-                    id="avatar_url"
-                    type="url"
-                    placeholder="https://example.org/avatar.jpg"
-                    className="mt-1.5"
-                    error={!!errors.avatar_url}
-                    {...register('avatar_url')}
-                  />
-                  {errors.avatar_url && (
-                    <p className="mt-1 text-xs text-rose-600" role="alert">
-                      {errors.avatar_url.message}
                     </p>
                   )}
                 </div>

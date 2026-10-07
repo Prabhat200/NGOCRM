@@ -103,18 +103,18 @@ export function FileUploader({
     return (
       <div className="p-4 rounded-xl border border-slate-200 bg-white shadow-xs space-y-3">
         <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3 min-w-0">
+          <div className="flex items-center gap-3.5 min-w-0">
             <div
-              className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${fileInfo.bgClass} ${fileInfo.colorClass}`}
+              className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border ${fileInfo.bgClass} ${fileInfo.colorClass}`}
               aria-hidden="true"
             >
-              <Icon className="w-5 h-5" />
+              <Icon className="w-6 h-6" />
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-semibold text-slate-900 truncate">
+              <p className="text-base font-bold text-slate-900 truncate">
                 {selectedFile.name}
               </p>
-              <p className="text-[11px] text-slate-500">
+              <p className="text-sm text-slate-500 mt-0.5">
                 {formatFileSize(selectedFile.size)} &bull; {fileInfo.label}
               </p>
             </div>
@@ -127,7 +127,7 @@ export function FileUploader({
               size="sm"
               disabled={disabled}
               onClick={() => inputRef.current?.click()}
-              className="text-xs h-8"
+              className="text-sm h-9 px-3.5"
             >
               Change
             </Button>
@@ -135,10 +135,10 @@ export function FileUploader({
               type="button"
               disabled={disabled}
               onClick={handleRemove}
-              className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
+              className="p-2 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
               aria-label="Remove selected file"
             >
-              <X className="w-4 h-4" />
+              <X className="w-5 h-5" />
             </button>
           </div>
         </div>
@@ -162,7 +162,7 @@ export function FileUploader({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={() => inputRef.current?.click()}
-        className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer select-none ${
+        className={`relative border-2 border-dashed rounded-xl p-9 text-center transition-all cursor-pointer select-none ${
           isDragging
             ? 'border-blue-600 bg-blue-50/60'
             : 'border-slate-300 hover:border-slate-400 bg-slate-50/50 hover:bg-slate-50'
@@ -178,15 +178,15 @@ export function FileUploader({
           disabled={disabled}
         />
 
-        <div className="mx-auto w-12 h-12 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center mb-3">
-          <UploadCloud className="w-6 h-6" aria-hidden="true" />
+        <div className="mx-auto w-14 h-14 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center mb-3.5">
+          <UploadCloud className="w-7 h-7" aria-hidden="true" />
         </div>
 
-        <p className="text-sm font-semibold text-slate-900">
+        <p className="text-base font-bold text-slate-900">
           Drop your file here, or{' '}
           <span className="text-blue-700 hover:underline">browse files</span>
         </p>
-        <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+        <p className="text-sm text-slate-500 mt-1.5 max-w-sm mx-auto">
           PDF, Word, Excel, PowerPoint, images, text, CSV, and ZIP up to 50 MB
         </p>
       </div>
@@ -194,9 +194,9 @@ export function FileUploader({
       {activeError && (
         <div
           role="alert"
-          className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-start gap-2"
+          className="p-3.5 rounded-lg bg-rose-50 border border-rose-200 text-sm text-rose-800 flex items-start gap-2.5"
         >
-          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-600" aria-hidden="true" />
+          <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-rose-600" aria-hidden="true" />
           <span>{activeError}</span>
         </div>
       )}

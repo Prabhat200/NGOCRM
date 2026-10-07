@@ -320,19 +320,71 @@ export const documentService = {
   },
 
   /**
+   * Resolves or dynamically creates a category by name for the organization.
+   */
+  async getOrCreateCategory(name: string, organizationId: string): Promise<string> {
+    const trimmed = name.trim()
+    if (!trimmed) throw new Error('Category name cannot be empty')
+
+    // 1. Try finding existing (case-insensitive)
+    const { data: existing } = await supabase
+      .from('document_categories')
+      .select('id, name')
+      .eq('organization_id', organizationId)
+      .ilike('name', trimmed)
+      .maybeSingle()
+
+    if (existing?.id) {
+      return existing.id
+    }
+
+    // 2. Insert new category
+    const { data: inserted, error: insertError } = await supabase
+      .from('document_categories')
+      .insert({
+        organization_id: organizationId,
+        name: trimmed,
+        description: 'User-created custom category',
+        is_active: true,
+      })
+      .select('id')
+      .single()
+
+    if (insertError) {
+      console.error('Failed to create custom category:', insertError)
+      const { data: raceFound } = await supabase
+        .from('document_categories')
+        .select('id')
+        .eq('organization_id', organizationId)
+        .ilike('name', trimmed)
+        .maybeSingle()
+      if (raceFound?.id) return raceFound.id
+      throw new Error(`Failed to create category "${trimmed}": ${insertError.message}`)
+    }
+
+    return inserted.id
+  },
+
+  /**
    * Secure Staged Document Upload Lifecycle (Rule 24, 25, 27).
    */
   async createDocumentWithFile(
     values: CreateDocumentFormValues,
     file: File,
-    organizationId: string
+    organizationId: string,
+    customCategoryName?: string
   ): Promise<string> {
+    let finalCategoryId = values.category_id || undefined
+    if (customCategoryName?.trim()) {
+      finalCategoryId = await this.getOrCreateCategory(customCategoryName.trim(), organizationId)
+    }
+
     // 1. Create logical document record and bootstrap manage access
     const { data: newDocId, error: createError } = await supabase.rpc('create_document', {
       p_title: values.title.trim(),
       p_description: values.description?.trim() || undefined,
       p_document_number: values.document_number?.trim() || undefined,
-      p_category_id: values.category_id || undefined,
+      p_category_id: finalCategoryId,
       p_occasion_id: values.occasion_id || undefined,
       p_owner_group_id: values.owner_group_id || undefined,
       p_document_date: values.document_date || undefined,

@@ -64,26 +64,26 @@ export function EditMetadataDialog({
       <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden my-8">
         <div className="flex items-center justify-between p-5 border-b border-slate-100">
           <div>
-            <h2 id="edit-dialog-title" className="text-base font-bold text-slate-900">
+            <h2 id="edit-dialog-title" className="text-lg font-bold text-slate-900">
               Edit Document Details
             </h2>
-            <p className="text-xs text-slate-500">Update descriptive metadata for this record.</p>
+            <p className="text-sm text-slate-500">Update descriptive metadata for this record.</p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="p-5 space-y-4 max-h-[75vh] overflow-y-auto">
+        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
           {/* Title */}
           <div className="space-y-1.5">
             <Label htmlFor="edit-title">Title *</Label>
-            <Input id="edit-title" {...register('title')} placeholder="Document title" />
-            {errors.title && <p className="text-xs text-rose-600">{errors.title.message}</p>}
+            <Input id="edit-title" {...register('title')} placeholder="Document title" className="text-base" />
+            {errors.title && <p className="text-sm text-rose-600 font-medium">{errors.title.message}</p>}
           </div>
 
           {/* Description */}
@@ -94,18 +94,18 @@ export function EditMetadataDialog({
               {...register('description')}
               rows={2}
               placeholder="Summary or purpose of this document..."
-              className="w-full text-xs rounded-lg border border-slate-200 p-2.5 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600"
+              className="w-full text-base rounded-lg border border-slate-200 p-3 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600"
             />
           </div>
 
           {/* Category & Occasion */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div className="space-y-1.5">
               <Label htmlFor="edit-category">Category</Label>
               <select
                 id="edit-category"
                 {...register('category_id')}
-                className="w-full text-xs rounded-lg border border-slate-200 px-3 py-2 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="w-full text-base rounded-lg border border-slate-200 px-3.5 py-2.5 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600"
               >
                 <option value="">None</option>
                 {taxonomy?.categories.map((c) => (
@@ -121,7 +121,7 @@ export function EditMetadataDialog({
               <select
                 id="edit-occasion"
                 {...register('occasion_id')}
-                className="w-full text-xs rounded-lg border border-slate-200 px-3 py-2 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="w-full text-base rounded-lg border border-slate-200 px-3.5 py-2.5 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600"
               >
                 <option value="">None</option>
                 {taxonomy?.occasions.map((o) => (
@@ -134,13 +134,13 @@ export function EditMetadataDialog({
           </div>
 
           {/* Owner Group & Document Number */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div className="space-y-1.5">
               <Label htmlFor="edit-group">Owner Group</Label>
               <select
                 id="edit-group"
                 {...register('owner_group_id')}
-                className="w-full text-xs rounded-lg border border-slate-200 px-3 py-2 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="w-full text-base rounded-lg border border-slate-200 px-3.5 py-2.5 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600"
               >
                 <option value="">None</option>
                 {taxonomy?.groups.map((g) => (
@@ -153,31 +153,31 @@ export function EditMetadataDialog({
 
             <div className="space-y-1.5">
               <Label htmlFor="edit-doc-num">Doc Number</Label>
-              <Input id="edit-doc-num" {...register('document_number')} placeholder="e.g. DOC-2026-001" />
+              <Input id="edit-doc-num" {...register('document_number')} placeholder="e.g. DOC-2026-001" className="text-base" />
             </div>
           </div>
 
           {/* Date & Fiscal Year */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div className="space-y-1.5">
               <Label htmlFor="edit-doc-date">Document Date</Label>
-              <Input id="edit-doc-date" type="date" {...register('document_date')} />
+              <Input id="edit-doc-date" type="date" {...register('document_date')} className="text-base" />
             </div>
 
             <div className="space-y-1.5">
               <Label htmlFor="edit-fiscal-year">Fiscal Year</Label>
-              <Input id="edit-fiscal-year" {...register('fiscal_year')} placeholder="e.g. FY 2026/27" />
+              <Input id="edit-fiscal-year" {...register('fiscal_year')} placeholder="e.g. FY 2026/27" className="text-base" />
             </div>
           </div>
 
           {/* Status & Confidentiality */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div className="space-y-1.5">
               <Label htmlFor="edit-status">Status</Label>
               <select
                 id="edit-status"
                 {...register('status')}
-                className="w-full text-xs rounded-lg border border-slate-200 px-3 py-2 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="w-full text-base rounded-lg border border-slate-200 px-3.5 py-2.5 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600"
               >
                 <option value="draft">Draft</option>
                 <option value="final">Final</option>
@@ -190,7 +190,7 @@ export function EditMetadataDialog({
               <select
                 id="edit-confidentiality"
                 {...register('confidentiality')}
-                className="w-full text-xs rounded-lg border border-slate-200 px-3 py-2 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="w-full text-base rounded-lg border border-slate-200 px-3.5 py-2.5 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600"
               >
                 <option value="general">General</option>
                 <option value="internal">Internal</option>
@@ -203,15 +203,15 @@ export function EditMetadataDialog({
           {/* Expiry Date */}
           <div className="space-y-1.5">
             <Label htmlFor="edit-expires-at">Expiration Date</Label>
-            <Input id="edit-expires-at" type="date" {...register('expires_at')} />
+            <Input id="edit-expires-at" type="date" {...register('expires_at')} className="text-base" />
           </div>
 
-          <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-100">
-            <Button type="button" variant="outline" size="sm" onClick={onClose} disabled={isSubmitting}>
+          <div className="flex items-center justify-end gap-3 pt-5 border-t border-slate-100">
+            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting} className="text-base px-5">
               Cancel
             </Button>
-            <Button type="submit" size="sm" disabled={isSubmitting}>
-              {isSubmitting && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />}
+            <Button type="submit" disabled={isSubmitting} className="text-base font-semibold px-6">
+              {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               <span>Save Changes</span>
             </Button>
           </div>

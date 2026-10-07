@@ -31,35 +31,35 @@ export function StatCard({
       <CardContent className="p-5 flex flex-col justify-between h-full">
         <div>
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <span className="text-xs sm:text-sm font-bold text-slate-600 uppercase tracking-wider">
               {title}
             </span>
-            <div className="w-8 h-8 rounded-lg bg-slate-100 group-hover:bg-blue-50 text-slate-600 group-hover:text-blue-700 flex items-center justify-center transition-colors">
-              <Icon className="w-4 h-4" aria-hidden="true" />
+            <div className="w-9 h-9 rounded-lg bg-slate-100 group-hover:bg-blue-50 text-slate-600 group-hover:text-blue-700 flex items-center justify-center transition-colors">
+              <Icon className="w-4.5 h-4.5" aria-hidden="true" />
             </div>
           </div>
 
-          <div className="mt-3">
+          <div className="mt-3.5">
             {isLoading ? (
-              <Skeleton className="h-9 w-20 rounded" />
+              <Skeleton className="h-10 w-24 rounded" />
             ) : (
-              <span className="text-3xl font-bold tracking-tight text-slate-900">
+              <span className="text-4xl sm:text-5xl font-black tracking-tight text-slate-900">
                 {typeof value === 'number' ? value.toLocaleString() : '0'}
               </span>
             )}
             {description && (
-              <p className="text-xs text-slate-500 mt-1">{description}</p>
+              <p className="text-sm text-slate-500 mt-1">{description}</p>
             )}
           </div>
         </div>
 
-        <div className="mt-5 pt-3 border-t border-slate-100">
+        <div className="mt-5 pt-3.5 border-t border-slate-100">
           <Link
             to={href}
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-700 group-hover:text-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 rounded"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-700 group-hover:text-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 rounded"
           >
             <span>{linkLabel}</span>
-            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
           </Link>
         </div>
       </CardContent>

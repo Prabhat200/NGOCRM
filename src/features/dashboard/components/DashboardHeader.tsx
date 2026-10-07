@@ -16,14 +16,14 @@ export function DashboardHeader() {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-slate-200">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
           {greeting}
         </h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1.5 text-base text-slate-600">
           {organization ? (
             <>
               Here&apos;s an overview of records and operations for{' '}
-              <span className="font-medium text-slate-700">{organization.name}</span>.
+              <span className="font-semibold text-slate-800">{organization.name}</span>.
             </>
           ) : (
             "Here's what's happening in your organization."

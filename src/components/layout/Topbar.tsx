@@ -90,12 +90,12 @@ export function Topbar({ onToggleMobileNav }: TopbarProps) {
         <button
           type="button"
           disabled
-          className="hidden md:flex items-center gap-2 px-3 py-1.5 text-xs text-slate-400 bg-slate-100/70 border border-slate-200/80 rounded-lg cursor-not-allowed opacity-75"
+          className="hidden md:flex items-center gap-2 px-3.5 py-2 text-sm text-slate-400 bg-slate-100/70 border border-slate-200/80 rounded-lg cursor-not-allowed opacity-75"
           title="Global search will be enabled in the Documents Archive"
         >
-          <Search className="w-3.5 h-3.5 text-slate-400" aria-hidden="true" />
+          <Search className="w-4 h-4 text-slate-400" aria-hidden="true" />
           <span>Search documents...</span>
-          <kbd className="ml-2 font-mono text-[10px] bg-white border border-slate-200 px-1.5 py-0.5 rounded text-slate-400">
+          <kbd className="ml-2 font-mono text-xs bg-white border border-slate-200 px-1.5 py-0.5 rounded text-slate-400">
             ⌘K
           </kbd>
         </button>
@@ -108,25 +108,25 @@ export function Topbar({ onToggleMobileNav }: TopbarProps) {
             <button
               type="button"
               onClick={() => setIsAddNewOpen((prev) => !prev)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-700 text-white hover:bg-blue-800 shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 cursor-pointer"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm sm:text-base font-semibold bg-blue-700 text-white hover:bg-blue-800 shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 cursor-pointer"
               aria-haspopup="true"
               aria-expanded={isAddNewOpen}
             >
               <Plus className="w-4 h-4" aria-hidden="true" />
               <span>Add New</span>
-              <ChevronDown className="w-3.5 h-3.5 opacity-80" aria-hidden="true" />
+              <ChevronDown className="w-4 h-4 opacity-80" aria-hidden="true" />
             </button>
 
             {isAddNewOpen && (
               <div
                 role="menu"
-                className="absolute right-0 mt-2 w-48 rounded-lg bg-white border border-slate-200 shadow-lg py-1 z-50 animate-in fade-in-50 zoom-in-95 duration-100"
+                className="absolute right-0 mt-2 w-52 rounded-lg bg-white border border-slate-200 shadow-lg py-1.5 z-50 animate-in fade-in-50 zoom-in-95 duration-100"
               >
                 {canUploadDoc && (
                   <Link
                     to="/documents/new"
                     onClick={() => setIsAddNewOpen(false)}
-                    className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:bg-slate-100"
+                    className="flex items-center gap-3 px-3.5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:bg-slate-100"
                     role="menuitem"
                   >
                     <FilePlus2 className="w-4 h-4 text-blue-600" aria-hidden="true" />
@@ -138,7 +138,7 @@ export function Topbar({ onToggleMobileNav }: TopbarProps) {
                   <Link
                     to="/occasions/new"
                     onClick={() => setIsAddNewOpen(false)}
-                    className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:bg-slate-100"
+                    className="flex items-center gap-3 px-3.5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:bg-slate-100"
                     role="menuitem"
                   >
                     <CalendarPlus className="w-4 h-4 text-emerald-600" aria-hidden="true" />
@@ -150,7 +150,7 @@ export function Topbar({ onToggleMobileNav }: TopbarProps) {
                   <Link
                     to="/members/new"
                     onClick={() => setIsAddNewOpen(false)}
-                    className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:bg-slate-100"
+                    className="flex items-center gap-3 px-3.5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:bg-slate-100"
                     role="menuitem"
                   >
                     <UserPlus className="w-4 h-4 text-purple-600" aria-hidden="true" />

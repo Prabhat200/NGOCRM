@@ -29,7 +29,7 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
     >
       {/* Brand Header */}
       <div className="h-16 flex items-center gap-3 px-4 border-b border-slate-200 shrink-0">
-        <div className="w-9 h-9 rounded-lg overflow-hidden shadow-sm shrink-0">
+        <div className="w-10 h-10 rounded-lg overflow-hidden shadow-xs shrink-0">
           <img
             src="/favicon.jpg"
             alt="Nyano Paila Initiative"
@@ -37,10 +37,10 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
           />
         </div>
         <div className="overflow-hidden">
-          <span className="block font-bold text-slate-900 leading-tight text-sm tracking-tight truncate">
+          <span className="block font-bold text-slate-900 leading-tight text-base tracking-tight truncate">
             {organization?.short_name || 'Nyano Paila'}
           </span>
-          <span className="block text-xs text-slate-500 font-medium">
+          <span className="block text-xs text-slate-500 font-semibold tracking-wide">
             Initiative Portal
           </span>
         </div>
@@ -49,10 +49,10 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
       {/* Main Nav Items */}
       <div className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
         <div>
-          <p className="px-3 text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+          <p className="px-3 text-xs font-bold uppercase tracking-wider text-slate-400 mb-2.5">
             Operations
           </p>
-          <nav className="space-y-1" aria-label="Operations Menu">
+          <nav className="space-y-1.5" aria-label="Operations Menu">
             {visibleMainItems.map((item) => {
               const Icon = item.icon
               return (
@@ -63,14 +63,14 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
                   end={item.href === '/'}
                   className={({ isActive }) =>
                     cn(
-                      'flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600',
+                      'flex items-center gap-3 px-3.5 py-2.5 text-[15px] font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600',
                       isActive
-                        ? 'bg-blue-50 text-blue-700 font-semibold'
+                        ? 'bg-blue-50 text-blue-700 font-bold'
                         : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                     )
                   }
                 >
-                  <Icon className="w-4 h-4 shrink-0" aria-hidden="true" />
+                  <Icon className="w-5 h-5 shrink-0" aria-hidden="true" />
                   <span>{item.title}</span>
                 </NavLink>
               )
@@ -80,10 +80,10 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
 
         {visibleSecondaryItems.length > 0 && (
           <div>
-            <p className="px-3 text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+            <p className="px-3 text-xs font-bold uppercase tracking-wider text-slate-400 mb-2.5">
               Administration
             </p>
-            <nav className="space-y-1" aria-label="Administration Menu">
+            <nav className="space-y-1.5" aria-label="Administration Menu">
               {visibleSecondaryItems.map((item) => {
                 const Icon = item.icon
                 return (
@@ -93,14 +93,14 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
                     onClick={onNavigate}
                     className={({ isActive }) =>
                       cn(
-                        'flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600',
+                        'flex items-center gap-3 px-3.5 py-2.5 text-[15px] font-medium rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600',
                         isActive
-                          ? 'bg-blue-50 text-blue-700 font-semibold'
+                          ? 'bg-blue-50 text-blue-700 font-bold'
                           : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                       )
                     }
                   >
-                    <Icon className="w-4 h-4 shrink-0" aria-hidden="true" />
+                    <Icon className="w-5 h-5 shrink-0" aria-hidden="true" />
                     <span>{item.title}</span>
                   </NavLink>
                 )
@@ -112,10 +112,10 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
 
       {/* Footer / Context info */}
       <div className="p-4 border-t border-slate-200 text-xs text-slate-500">
-        <p className="font-medium text-slate-700 truncate">
+        <p className="font-semibold text-slate-800 text-sm truncate">
           {organization?.name || 'Kathmandu, Nepal'}
         </p>
-        <p className="text-slate-400">
+        <p className="text-slate-500 font-medium mt-0.5">
           Timezone: {organization?.timezone || 'Asia/Kathmandu'}
         </p>
       </div>

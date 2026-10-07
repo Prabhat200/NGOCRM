@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import { useForm, useWatch } from 'react-hook-form'
+import { useQueryClient } from '@tanstack/react-query'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowLeft, ChevronDown, AlertCircle } from 'lucide-react'
 import { useAuth } from '@/features/auth/context'
@@ -19,6 +20,7 @@ import { useDocumentTaxonomy } from '../hooks/useDocuments'
 
 export function UploadDocumentPage() {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [searchParams] = useSearchParams()
   const preselectedOccasionId = searchParams.get('occasion') || ''
   const preselectedGroupId = searchParams.get('group') || ''
@@ -27,6 +29,7 @@ export function UploadDocumentPage() {
   const { data: taxonomy } = useDocumentTaxonomy()
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [customCategoryName, setCustomCategoryName] = useState('')
   const [showMoreDetails, setShowMoreDetails] = useState(
     Boolean(preselectedOccasionId || preselectedGroupId)
   )
@@ -59,6 +62,10 @@ export function UploadDocumentPage() {
   })
 
   const accessMode = useWatch({ control, name: 'access_mode' })
+  const selectedCategoryId = useWatch({ control, name: 'category_id' })
+  const selectedCategoryObj = taxonomy?.categories.find((c) => c.id === selectedCategoryId)
+  const isOtherCategory =
+    selectedCategoryObj?.name.toLowerCase() === 'other' || selectedCategoryId === '__custom__'
 
   // When a file is dropped or selected, suggest a title if not already provided (Rule 20)
   const handleFileSelect = (file: File | null) => {
@@ -85,6 +92,11 @@ export function UploadDocumentPage() {
       return
     }
 
+    if (isOtherCategory && selectedCategoryId === '__custom__' && !customCategoryName.trim()) {
+      setUploadError('Please enter a custom category name.')
+      return
+    }
+
     setUploadError(null)
     setIsSubmitting(true)
 
@@ -92,8 +104,14 @@ export function UploadDocumentPage() {
       const newDocId = await documentService.createDocumentWithFile(
         values,
         selectedFile,
-        organization.id
+        organization.id,
+        isOtherCategory && customCategoryName.trim() ? customCategoryName.trim() : undefined
       )
+
+      if (isOtherCategory && customCategoryName.trim()) {
+        await queryClient.invalidateQueries({ queryKey: ['documents', 'taxonomy'] })
+      }
+
       navigate(`/documents/${newDocId}`, { replace: true })
     } catch (err: unknown) {
       const e = err as Error
@@ -157,13 +175,13 @@ export function UploadDocumentPage() {
               <Input
                 id="title"
                 placeholder="e.g., Annual General Meeting Minutes 2026"
-                className="mt-1.5 text-sm"
+                className="mt-1.5 text-base"
                 error={!!errors.title}
                 disabled={isSubmitting}
                 {...register('title')}
               />
               {errors.title && (
-                <p className="mt-1 text-xs text-rose-600" role="alert">
+                <p className="mt-1.5 text-sm text-rose-600 font-medium" role="alert">
                   {errors.title.message}
                 </p>
               )}
@@ -174,7 +192,7 @@ export function UploadDocumentPage() {
                 <Label htmlFor="category_id">Category</Label>
                 <select
                   id="category_id"
-                  className="mt-1.5 w-full text-xs rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  className="mt-1.5 w-full text-base rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600"
                   disabled={isSubmitting}
                   {...register('category_id')}
                 >
@@ -184,31 +202,77 @@ export function UploadDocumentPage() {
                       {c.name}
                     </option>
                   ))}
+                  <option value="__custom__">✨ Other (Type custom category...)</option>
                 </select>
+
+                {isOtherCategory && (
+                  <div className="mt-2.5 p-3.5 bg-blue-50/80 border border-blue-200 rounded-xl space-y-1.5 animate-in fade-in slide-in-from-top-1 duration-200">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="custom_category" className="text-sm font-bold text-blue-900">
+                        Custom Category Name *
+                      </Label>
+                      <span className="text-xs text-blue-600 font-medium">Saved to categories</span>
+                    </div>
+                    <Input
+                      id="custom_category"
+                      placeholder="e.g., Volunteer Agreement, Press Release, Donor MoU"
+                      value={customCategoryName}
+                      onChange={(e) => setCustomCategoryName(e.target.value)}
+                      className="text-base bg-white border-blue-300 focus-visible:ring-blue-600"
+                      disabled={isSubmitting}
+                      autoFocus
+                    />
+                    <p className="text-xs text-slate-500">
+                      Type the category name and it will be saved for this and future documents.
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div>
-                <Label htmlFor="occasion_id">Linked Occasion</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="occasion_id">Linked Occasion</Label>
+                  <Link
+                    to="/occasions/new"
+                    target="_blank"
+                    className="text-xs text-blue-600 hover:text-blue-700 font-semibold hover:underline inline-flex items-center gap-1"
+                  >
+                    + Create occasion
+                  </Link>
+                </div>
                 <select
                   id="occasion_id"
-                  className="mt-1.5 w-full text-xs rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  className="mt-1.5 w-full text-base rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600"
                   disabled={isSubmitting}
                   {...register('occasion_id')}
                 >
-                  <option value="">None / Not linked</option>
+                  <option value="">
+                    {taxonomy?.occasions && taxonomy.occasions.length > 0
+                      ? 'None / Not linked'
+                      : 'None / Not linked (No occasions created yet)'}
+                  </option>
                   {taxonomy?.occasions.map((o) => (
                     <option key={o.id} value={o.id}>
                       {o.name}
                     </option>
                   ))}
                 </select>
+                {(!taxonomy?.occasions || taxonomy.occasions.length === 0) && (
+                  <p className="mt-1.5 text-xs text-slate-500">
+                    There are currently no occasions recorded. You can create one under{' '}
+                    <Link to="/occasions" className="text-blue-600 font-semibold underline">
+                      Occasions
+                    </Link>{' '}
+                    to link here, or proceed unlinked.
+                  </p>
+                )}
               </div>
             </div>
 
             {/* Access Scope (Rule 22, 23) */}
             <div className="pt-2">
               <Label required>Who can see this document?</Label>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-2.5">
                 {[
                   {
                     value: 'organization',
@@ -228,23 +292,23 @@ export function UploadDocumentPage() {
                 ].map((opt) => (
                   <label
                     key={opt.value}
-                    className={`p-3 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
+                    className={`p-3.5 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
                       accessMode === opt.value
                         ? 'border-blue-600 bg-blue-50/50 text-blue-950 ring-1 ring-blue-600'
                         : 'border-slate-200 hover:border-slate-300 bg-white text-slate-700'
                     }`}
                   >
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2.5">
                       <input
                         type="radio"
                         value={opt.value}
                         disabled={isSubmitting}
                         {...register('access_mode')}
-                        className="text-blue-600 focus:ring-blue-500"
+                        className="text-blue-600 focus:ring-blue-500 w-4 h-4"
                       />
-                      <span className="font-semibold text-xs">{opt.title}</span>
+                      <span className="font-bold text-base text-slate-900">{opt.title}</span>
                     </div>
-                    <span className="text-[11px] text-slate-500 mt-1 pl-5">
+                    <span className="text-sm text-slate-500 mt-1 pl-6">
                       {opt.desc}
                     </span>
                   </label>
@@ -260,23 +324,23 @@ export function UploadDocumentPage() {
             <button
               type="button"
               onClick={() => setShowMoreDetails((prev) => !prev)}
-              className="w-full flex items-center justify-between text-xs font-semibold text-slate-700 hover:text-slate-900 focus-visible:outline-none cursor-pointer"
+              className="w-full flex items-center justify-between text-base font-semibold text-slate-800 hover:text-slate-900 focus-visible:outline-none cursor-pointer py-1"
             >
-              <span>More details (Document number, dates, description)</span>
+              <span>More details (Document number, dates, description, group)</span>
               <ChevronDown
-                className={`w-4 h-4 transition-transform ${showMoreDetails ? 'rotate-180' : ''}`}
+                className={`w-5 h-5 transition-transform ${showMoreDetails ? 'rotate-180' : ''}`}
               />
             </button>
 
             {showMoreDetails && (
-              <div className="pt-3 border-t border-slate-100 space-y-4 animate-in fade-in-50 duration-150">
+              <div className="pt-4 border-t border-slate-100 space-y-4 animate-in fade-in-50 duration-150">
                 <div>
                   <Label htmlFor="description">Description or Summary</Label>
                   <textarea
                     id="description"
                     rows={3}
                     placeholder="Brief background or purpose of this record..."
-                    className="mt-1.5 w-full text-xs rounded-lg border border-slate-200 bg-white p-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                    className="mt-1.5 w-full text-base rounded-lg border border-slate-200 bg-white p-3.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600"
                     disabled={isSubmitting}
                     {...register('description')}
                   />
@@ -288,7 +352,7 @@ export function UploadDocumentPage() {
                     <Input
                       id="document_number"
                       placeholder="e.g., DOC-2026-001"
-                      className="mt-1.5 text-xs"
+                      className="mt-1.5 text-base"
                       disabled={isSubmitting}
                       {...register('document_number')}
                     />
@@ -299,7 +363,7 @@ export function UploadDocumentPage() {
                     <Input
                       id="document_date"
                       type="date"
-                      className="mt-1.5 text-xs"
+                      className="mt-1.5 text-base"
                       disabled={isSubmitting}
                       {...register('document_date')}
                     />
@@ -312,7 +376,7 @@ export function UploadDocumentPage() {
                     <Input
                       id="fiscal_year"
                       placeholder="e.g., 2082/83 or 2026/27"
-                      className="mt-1.5 text-xs"
+                      className="mt-1.5 text-base"
                       disabled={isSubmitting}
                       {...register('fiscal_year')}
                     />
@@ -322,7 +386,7 @@ export function UploadDocumentPage() {
                     <Label htmlFor="owner_group_id">Owner Committee / Group</Label>
                     <select
                       id="owner_group_id"
-                      className="mt-1.5 w-full text-xs rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                      className="mt-1.5 w-full text-base rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600"
                       disabled={isSubmitting}
                       {...register('owner_group_id')}
                     >
@@ -341,7 +405,7 @@ export function UploadDocumentPage() {
                     <Label htmlFor="confidentiality">Confidentiality Level</Label>
                     <select
                       id="confidentiality"
-                      className="mt-1.5 w-full text-xs rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                      className="mt-1.5 w-full text-base rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600"
                       disabled={isSubmitting}
                       {...register('confidentiality')}
                     >
@@ -357,7 +421,7 @@ export function UploadDocumentPage() {
                     <Input
                       id="expires_at"
                       type="date"
-                      className="mt-1.5 text-xs"
+                      className="mt-1.5 text-base"
                       disabled={isSubmitting}
                       {...register('expires_at')}
                     />
@@ -369,7 +433,7 @@ export function UploadDocumentPage() {
                   <Input
                     id="change_note"
                     placeholder="e.g., Initial finalized upload"
-                    className="mt-1.5 text-xs"
+                    className="mt-1.5 text-base"
                     disabled={isSubmitting}
                     {...register('change_note')}
                   />
@@ -380,12 +444,13 @@ export function UploadDocumentPage() {
         </Card>
 
         {/* Submit Actions */}
-        <div className="flex items-center justify-end gap-3 pt-2">
+        <div className="flex items-center justify-end gap-3.5 pt-3">
           <Button
             type="button"
             variant="outline"
             disabled={isSubmitting}
             onClick={() => navigate('/documents')}
+            className="text-base px-5 py-2.5"
           >
             Cancel
           </Button>
@@ -394,7 +459,7 @@ export function UploadDocumentPage() {
             type="submit"
             isLoading={isSubmitting}
             disabled={!selectedFile || isSubmitting}
-            className="min-w-32"
+            className="min-w-36 text-base font-semibold px-6 py-2.5"
           >
             Save & Upload
           </Button>

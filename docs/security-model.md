@@ -162,3 +162,60 @@ Documents support three distinct access modes:
 * Profiles with `must_change_password = true` are blocked by `ProtectedRoute` from accessing any portal routes and immediately redirected to `/change-password`.
 * Once the user updates their password via Supabase Auth, the secure `complete_first_login_password_change()` RPC sets `must_change_password = false` and logs `portal_user.password_changed`.
 
+---
+
+## 12. Finance & Expenditure Security Architecture
+
+### 12.1 Financial Permission Catalog & RBAC
+Finance data is strictly segregated from general membership and documents. Normal NGO members without specific finance permissions receive **zero** access to expenditures, bills, bank accounts, or payments:
+
+| Permission | Description |
+| :--- | :--- |
+| `finance.view` | View general organizational expenditures, accounts, categories, and funding sources. |
+| `finance.create` | Draft new expenditures and financial records. |
+| `finance.edit` | Modify draft expenditures and update details. |
+| `finance.expenses.approve` | Formally approve or reject submitted expenditures. |
+| `finance.expenses.void` | Void approved expenditures with mandatory reason. |
+| `finance.bills.view` | View bills and accounts payable obligations. |
+| `finance.bills.manage` | Create, update, and manage incoming vendor bills. |
+| `finance.payments.view` | View payments and cash outflow history. |
+| `finance.payments.create` | Execute finalized payments and allocations out of accounts. |
+| `finance.payments.void` | Void completed payments with mandatory reason. |
+| `finance.files.view` | View financial receipts and supporting documents metadata. |
+| `finance.files.upload` | Upload receipts, vouchers, and invoice files. |
+| `finance.files.download` | Download confidential financial evidence and receipts. |
+| `finance.accounts.view` | View finance accounts and balances. |
+| `finance.accounts.manage` | Create and configure organizational finance accounts. |
+| `finance.vendors.view` | View vendor list and suppliers. |
+| `finance.vendors.manage` | Create and update external vendors and payees. |
+| `finance.categories.manage` | Configure expenditure categories. |
+| `finance.funding_sources.manage` | Configure grants and funding sources. |
+| `finance.reports.view` | View aggregate finance reports, cash outflows, and liability summaries. |
+
+* **Built-in System Roles**:
+  * **Finance Admin** (`finance_admin`): All 20 finance permissions.
+  * **Finance Viewer** (`finance_viewer`): Read-only view permissions across accounts, bills, payments, expenses, and reports.
+  * **Super Admin**: Retains full system authority.
+  * **Secretary Admin & Member**: Do **not** receive finance permissions by default.
+
+### 12.2 Private Financial Storage (`finance-files`)
+1. **Private Bucket Configuration**:
+   * Bucket: `finance-files` (`public = false`, 50MB file size limit).
+   * Storage Path: `{organization_id}/{entity_type}/{entity_id}/{finance_file_id}/{version_id}/{filename}`
+2. **Object Access Control**:
+   * Read access (`storage_can_read_finance_file`): Checks organization tenancy and requires `finance.files.download` or `finance.files.view`.
+   * Upload access (`storage_can_upload_finance_file`): Checks organization tenancy and requires `finance.files.upload`.
+   * Update & Delete: **Denied**. Storage objects in `finance-files` are immutable.
+3. **Download Audit**:
+   * Clients call `log_finance_file_download` RPC to log `finance.file_downloaded` in `activity_logs`. Signed URLs and temporary tokens are never recorded in metadata.
+
+### 12.3 Banking Information Protection & Masking
+* **Strict Non-Storage**: The application never accepts or stores online banking passwords, transaction PINs, OTP codes, or card CVVs.
+* **Account Number Masking**: Bank account references are masked in UI and helper views (`•••• 5432`) via `mask_account_reference()`.
+
+### 12.4 Financial Immutability & Anti-Tampering Triggers
+* **Deletion Prevention (`tr_prevent_financial_deletion`)**: Completed payments, approved/paid expenses, approved/paid bills, and finance file versions cannot be deleted through SQL `DELETE`.
+* **Void with Reason**: Once finalized, mistakes or cancellations must use `void_payment` or `void_expense` with a mandatory reason, preserving the complete audit history.
+* **Allocation Overflow & Currency Matching**: Triggers `tr_validate_payment_allocation` and `tr_payments_currency_check` guarantee that allocation sums never exceed payment amounts, target obligations are never overpaid, and cross-currency or cross-organization payments are blocked at the engine level.
+
+

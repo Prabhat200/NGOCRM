@@ -86,6 +86,134 @@ export type Database = {
           },
         ]
       }
+      bills: {
+        Row: {
+          amount: number
+          archived_at: string | null
+          bill_date: string
+          bill_number: string | null
+          category_id: string
+          created_at: string
+          created_by: string | null
+          currency: string
+          description: string | null
+          due_date: string | null
+          funding_source_id: string | null
+          id: string
+          occasion_id: string | null
+          organization_id: string
+          owner_group_id: string | null
+          payee_name: string | null
+          person_payee_id: string | null
+          status: Database["public"]["Enums"]["bill_status"]
+          title: string
+          updated_at: string
+          updated_by: string | null
+          vendor_id: string | null
+          vendor_invoice_number: string | null
+        }
+        Insert: {
+          amount: number
+          archived_at?: string | null
+          bill_date?: string
+          bill_number?: string | null
+          category_id: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          description?: string | null
+          due_date?: string | null
+          funding_source_id?: string | null
+          id?: string
+          occasion_id?: string | null
+          organization_id: string
+          owner_group_id?: string | null
+          payee_name?: string | null
+          person_payee_id?: string | null
+          status?: Database["public"]["Enums"]["bill_status"]
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+          vendor_id?: string | null
+          vendor_invoice_number?: string | null
+        }
+        Update: {
+          amount?: number
+          archived_at?: string | null
+          bill_date?: string
+          bill_number?: string | null
+          category_id?: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          description?: string | null
+          due_date?: string | null
+          funding_source_id?: string | null
+          id?: string
+          occasion_id?: string | null
+          organization_id?: string
+          owner_group_id?: string | null
+          payee_name?: string | null
+          person_payee_id?: string | null
+          status?: Database["public"]["Enums"]["bill_status"]
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+          vendor_id?: string | null
+          vendor_invoice_number?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bills_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_bills_category_org"
+            columns: ["organization_id", "category_id"]
+            isOneToOne: false
+            referencedRelation: "finance_categories"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fk_bills_funding_source_org"
+            columns: ["organization_id", "funding_source_id"]
+            isOneToOne: false
+            referencedRelation: "funding_sources"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fk_bills_occasion_org"
+            columns: ["organization_id", "occasion_id"]
+            isOneToOne: false
+            referencedRelation: "occasions"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fk_bills_owner_group_org"
+            columns: ["organization_id", "owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fk_bills_person_payee_org"
+            columns: ["organization_id", "person_payee_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fk_bills_vendor_org"
+            columns: ["organization_id", "vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["organization_id", "id"]
+          },
+        ]
+      }
       document_categories: {
         Row: {
           created_at: string
@@ -717,6 +845,507 @@ export type Database = {
           },
         ]
       }
+      expenses: {
+        Row: {
+          amount: number
+          approved_at: string | null
+          approved_by: string | null
+          archived_at: string | null
+          category_id: string
+          created_at: string
+          created_by: string | null
+          currency: string
+          description: string | null
+          expense_date: string
+          expense_number: string | null
+          funding_source_id: string | null
+          id: string
+          is_reimbursable: boolean
+          notes: string | null
+          occasion_id: string | null
+          organization_id: string
+          owner_group_id: string | null
+          payee_name: string | null
+          person_payee_id: string | null
+          reimbursement_person_id: string | null
+          rejected_at: string | null
+          rejected_by: string | null
+          rejection_reason: string | null
+          status: Database["public"]["Enums"]["expense_status"]
+          submitted_at: string | null
+          submitted_by: string | null
+          title: string
+          updated_at: string
+          updated_by: string | null
+          vendor_id: string | null
+          void_reason: string | null
+          voided_at: string | null
+          voided_by: string | null
+        }
+        Insert: {
+          amount: number
+          approved_at?: string | null
+          approved_by?: string | null
+          archived_at?: string | null
+          category_id: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          description?: string | null
+          expense_date?: string
+          expense_number?: string | null
+          funding_source_id?: string | null
+          id?: string
+          is_reimbursable?: boolean
+          notes?: string | null
+          occasion_id?: string | null
+          organization_id: string
+          owner_group_id?: string | null
+          payee_name?: string | null
+          person_payee_id?: string | null
+          reimbursement_person_id?: string | null
+          rejected_at?: string | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
+          status?: Database["public"]["Enums"]["expense_status"]
+          submitted_at?: string | null
+          submitted_by?: string | null
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+          vendor_id?: string | null
+          void_reason?: string | null
+          voided_at?: string | null
+          voided_by?: string | null
+        }
+        Update: {
+          amount?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          archived_at?: string | null
+          category_id?: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          description?: string | null
+          expense_date?: string
+          expense_number?: string | null
+          funding_source_id?: string | null
+          id?: string
+          is_reimbursable?: boolean
+          notes?: string | null
+          occasion_id?: string | null
+          organization_id?: string
+          owner_group_id?: string | null
+          payee_name?: string | null
+          person_payee_id?: string | null
+          reimbursement_person_id?: string | null
+          rejected_at?: string | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
+          status?: Database["public"]["Enums"]["expense_status"]
+          submitted_at?: string | null
+          submitted_by?: string | null
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+          vendor_id?: string | null
+          void_reason?: string | null
+          voided_at?: string | null
+          voided_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_expenses_category_org"
+            columns: ["organization_id", "category_id"]
+            isOneToOne: false
+            referencedRelation: "finance_categories"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fk_expenses_funding_source_org"
+            columns: ["organization_id", "funding_source_id"]
+            isOneToOne: false
+            referencedRelation: "funding_sources"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fk_expenses_occasion_org"
+            columns: ["organization_id", "occasion_id"]
+            isOneToOne: false
+            referencedRelation: "occasions"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fk_expenses_owner_group_org"
+            columns: ["organization_id", "owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fk_expenses_person_payee_org"
+            columns: ["organization_id", "person_payee_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fk_expenses_reimbursement_person_org"
+            columns: ["organization_id", "reimbursement_person_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fk_expenses_vendor_org"
+            columns: ["organization_id", "vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["organization_id", "id"]
+          },
+        ]
+      }
+      finance_accounts: {
+        Row: {
+          account_reference: string | null
+          account_type: Database["public"]["Enums"]["finance_account_type"]
+          archived_at: string | null
+          bank_name: string | null
+          created_at: string
+          currency: string
+          id: string
+          is_active: boolean
+          name: string
+          organization_id: string
+          updated_at: string
+        }
+        Insert: {
+          account_reference?: string | null
+          account_type?: Database["public"]["Enums"]["finance_account_type"]
+          archived_at?: string | null
+          bank_name?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          organization_id: string
+          updated_at?: string
+        }
+        Update: {
+          account_reference?: string | null
+          account_type?: Database["public"]["Enums"]["finance_account_type"]
+          archived_at?: string | null
+          bank_name?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          organization_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_accounts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      finance_categories: {
+        Row: {
+          category_type: Database["public"]["Enums"]["category_type"]
+          code: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          organization_id: string
+          updated_at: string
+        }
+        Insert: {
+          category_type?: Database["public"]["Enums"]["category_type"]
+          code?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          organization_id: string
+          updated_at?: string
+        }
+        Update: {
+          category_type?: Database["public"]["Enums"]["category_type"]
+          code?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          organization_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_categories_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      finance_file_versions: {
+        Row: {
+          checksum: string | null
+          created_at: string
+          created_by: string | null
+          file_size: number
+          filename: string
+          finance_file_id: string
+          id: string
+          mime_type: string
+          notes: string | null
+          organization_id: string
+          storage_path: string
+          version_number: number
+        }
+        Insert: {
+          checksum?: string | null
+          created_at?: string
+          created_by?: string | null
+          file_size: number
+          filename: string
+          finance_file_id: string
+          id?: string
+          mime_type: string
+          notes?: string | null
+          organization_id: string
+          storage_path: string
+          version_number?: number
+        }
+        Update: {
+          checksum?: string | null
+          created_at?: string
+          created_by?: string | null
+          file_size?: number
+          filename?: string
+          finance_file_id?: string
+          id?: string
+          mime_type?: string
+          notes?: string | null
+          organization_id?: string
+          storage_path?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_file_versions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_finance_file_versions_file_org"
+            columns: ["organization_id", "finance_file_id"]
+            isOneToOne: false
+            referencedRelation: "finance_files"
+            referencedColumns: ["organization_id", "id"]
+          },
+        ]
+      }
+      finance_files: {
+        Row: {
+          archived_at: string | null
+          bill_id: string | null
+          created_at: string
+          created_by: string | null
+          current_version_id: string | null
+          description: string | null
+          entity_id: string
+          entity_type: Database["public"]["Enums"]["finance_file_entity_type"]
+          expense_id: string | null
+          file_type: Database["public"]["Enums"]["finance_file_type"]
+          id: string
+          organization_id: string
+          payment_id: string | null
+          title: string
+          updated_at: string
+          updated_by: string | null
+          vendor_id: string | null
+        }
+        Insert: {
+          archived_at?: string | null
+          bill_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          current_version_id?: string | null
+          description?: string | null
+          entity_id: string
+          entity_type: Database["public"]["Enums"]["finance_file_entity_type"]
+          expense_id?: string | null
+          file_type?: Database["public"]["Enums"]["finance_file_type"]
+          id?: string
+          organization_id: string
+          payment_id?: string | null
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+          vendor_id?: string | null
+        }
+        Update: {
+          archived_at?: string | null
+          bill_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          current_version_id?: string | null
+          description?: string | null
+          entity_id?: string
+          entity_type?: Database["public"]["Enums"]["finance_file_entity_type"]
+          expense_id?: string | null
+          file_type?: Database["public"]["Enums"]["finance_file_type"]
+          id?: string
+          organization_id?: string
+          payment_id?: string | null
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+          vendor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_files_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_finance_files_bill_org"
+            columns: ["organization_id", "bill_id"]
+            isOneToOne: false
+            referencedRelation: "bills"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fk_finance_files_expense_org"
+            columns: ["organization_id", "expense_id"]
+            isOneToOne: false
+            referencedRelation: "expenses"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fk_finance_files_payment_org"
+            columns: ["organization_id", "payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fk_finance_files_vendor_org"
+            columns: ["organization_id", "vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fk_finance_files_version"
+            columns: ["current_version_id"]
+            isOneToOne: false
+            referencedRelation: "finance_file_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      finance_sequences: {
+        Row: {
+          last_val: number
+          organization_id: string
+          sequence_type: string
+          year: number
+        }
+        Insert: {
+          last_val?: number
+          organization_id: string
+          sequence_type: string
+          year: number
+        }
+        Update: {
+          last_val?: number
+          organization_id?: string
+          sequence_type?: string
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_sequences_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      funding_sources: {
+        Row: {
+          created_at: string
+          description: string | null
+          ends_at: string | null
+          id: string
+          is_active: boolean
+          name: string
+          organization_id: string
+          reference_code: string | null
+          starts_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          organization_id: string
+          reference_code?: string | null
+          starts_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          organization_id?: string
+          reference_code?: string | null
+          starts_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funding_sources_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       group_members: {
         Row: {
           created_at: string
@@ -1129,6 +1758,7 @@ export type Database = {
         Row: {
           address: string | null
           created_at: string
+          default_currency: string
           email: string | null
           id: string
           logo_url: string | null
@@ -1143,6 +1773,7 @@ export type Database = {
         Insert: {
           address?: string | null
           created_at?: string
+          default_currency?: string
           email?: string | null
           id?: string
           logo_url?: string | null
@@ -1157,6 +1788,7 @@ export type Database = {
         Update: {
           address?: string | null
           created_at?: string
+          default_currency?: string
           email?: string | null
           id?: string
           logo_url?: string | null
@@ -1169,6 +1801,166 @@ export type Database = {
           website?: string | null
         }
         Relationships: []
+      }
+      payment_allocations: {
+        Row: {
+          allocated_amount: number
+          bill_id: string | null
+          created_at: string
+          expense_id: string | null
+          id: string
+          organization_id: string
+          payment_id: string
+        }
+        Insert: {
+          allocated_amount: number
+          bill_id?: string | null
+          created_at?: string
+          expense_id?: string | null
+          id?: string
+          organization_id: string
+          payment_id: string
+        }
+        Update: {
+          allocated_amount?: number
+          bill_id?: string | null
+          created_at?: string
+          expense_id?: string | null
+          id?: string
+          organization_id?: string
+          payment_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_allocations_bill_org"
+            columns: ["organization_id", "bill_id"]
+            isOneToOne: false
+            referencedRelation: "bills"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fk_allocations_expense_org"
+            columns: ["organization_id", "expense_id"]
+            isOneToOne: false
+            referencedRelation: "expenses"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fk_allocations_payment_org"
+            columns: ["organization_id", "payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "payment_allocations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          account_id: string
+          amount: number
+          created_at: string
+          created_by: string | null
+          currency: string
+          id: string
+          notes: string | null
+          organization_id: string
+          payee_name: string | null
+          payment_date: string
+          payment_method: Database["public"]["Enums"]["payment_method"]
+          payment_number: string | null
+          person_payee_id: string | null
+          reference_number: string | null
+          status: Database["public"]["Enums"]["payment_status"]
+          updated_at: string
+          updated_by: string | null
+          vendor_id: string | null
+          void_reason: string | null
+          voided_at: string | null
+          voided_by: string | null
+        }
+        Insert: {
+          account_id: string
+          amount: number
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          notes?: string | null
+          organization_id: string
+          payee_name?: string | null
+          payment_date?: string
+          payment_method?: Database["public"]["Enums"]["payment_method"]
+          payment_number?: string | null
+          person_payee_id?: string | null
+          reference_number?: string | null
+          status?: Database["public"]["Enums"]["payment_status"]
+          updated_at?: string
+          updated_by?: string | null
+          vendor_id?: string | null
+          void_reason?: string | null
+          voided_at?: string | null
+          voided_by?: string | null
+        }
+        Update: {
+          account_id?: string
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          notes?: string | null
+          organization_id?: string
+          payee_name?: string | null
+          payment_date?: string
+          payment_method?: Database["public"]["Enums"]["payment_method"]
+          payment_number?: string | null
+          person_payee_id?: string | null
+          reference_number?: string | null
+          status?: Database["public"]["Enums"]["payment_status"]
+          updated_at?: string
+          updated_by?: string | null
+          vendor_id?: string | null
+          void_reason?: string | null
+          voided_at?: string | null
+          voided_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_payments_account_org"
+            columns: ["organization_id", "account_id"]
+            isOneToOne: false
+            referencedRelation: "finance_accounts"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fk_payments_person_payee_org"
+            columns: ["organization_id", "person_payee_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fk_payments_vendor_org"
+            columns: ["organization_id", "vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "payments_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       people: {
         Row: {
@@ -1872,6 +2664,71 @@ export type Database = {
           },
         ]
       }
+      vendors: {
+        Row: {
+          address: string | null
+          archived_at: string | null
+          contact_person: string | null
+          created_at: string
+          created_by: string | null
+          email: string | null
+          id: string
+          is_active: boolean
+          name: string
+          notes: string | null
+          organization_id: string
+          phone: string | null
+          registration_number: string | null
+          tax_identifier: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          address?: string | null
+          archived_at?: string | null
+          contact_person?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          notes?: string | null
+          organization_id: string
+          phone?: string | null
+          registration_number?: string | null
+          tax_identifier?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          address?: string | null
+          archived_at?: string | null
+          contact_person?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          notes?: string | null
+          organization_id?: string
+          phone?: string | null
+          registration_number?: string | null
+          tax_identifier?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendors_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -1895,6 +2752,7 @@ export type Database = {
         Args: { p_member_id: string; p_occasion_id: string; p_role?: string }
         Returns: boolean
       }
+      approve_expense: { Args: { p_expense_id: string }; Returns: Json }
       archive_document: { Args: { p_document_id: string }; Returns: boolean }
       archive_group: { Args: { p_group_id: string }; Returns: boolean }
       archive_member: { Args: { p_member_id: string }; Returns: boolean }
@@ -2013,11 +2871,30 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      create_payment: {
+        Args: {
+          p_account_id: string
+          p_allocations?: Json
+          p_amount: number
+          p_notes?: string
+          p_payee_name?: string
+          p_payment_date: string
+          p_payment_method: Database["public"]["Enums"]["payment_method"]
+          p_person_payee_id?: string
+          p_reference_number?: string
+          p_vendor_id?: string
+        }
+        Returns: Json
+      }
       current_member_id: { Args: never; Returns: string }
       current_organization_id: { Args: never; Returns: string }
       current_person_id: { Args: never; Returns: string }
       current_profile_id: { Args: never; Returns: string }
       delete_custom_role: { Args: { p_role_id: string }; Returns: boolean }
+      generate_finance_number: {
+        Args: { p_org_id: string; p_type: string }
+        Returns: string
+      }
       get_activity_logs: {
         Args: {
           p_action_category?: string
@@ -2043,6 +2920,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_bill_balance: { Args: { p_bill_id: string }; Returns: Json }
       get_document_access_level: {
         Args: { p_document_id: string }
         Returns: number
@@ -2051,6 +2929,7 @@ export type Database = {
         Args: { p_document_id: string }
         Returns: Json
       }
+      get_expense_balance: { Args: { p_expense_id: string }; Returns: Json }
       get_members_directory: {
         Args: { p_page?: number; p_page_size?: number; p_search?: string }
         Returns: {
@@ -2085,6 +2964,10 @@ export type Database = {
         Args: { p_document_id: string; p_version_id?: string }
         Returns: boolean
       }
+      log_finance_file_download: {
+        Args: { p_finance_file_id: string; p_version_id: string }
+        Returns: Json
+      }
       log_personnel_file_download: {
         Args: { p_personnel_file_id: string; p_version_id?: string }
         Returns: boolean
@@ -2100,6 +2983,11 @@ export type Database = {
         Returns: boolean
       }
       mark_all_notifications_read: { Args: never; Returns: number }
+      mask_account_reference: { Args: { p_ref: string }; Returns: string }
+      reject_expense: {
+        Args: { p_expense_id: string; p_reason: string }
+        Returns: Json
+      }
       remove_group_member: {
         Args: { p_group_id: string; p_member_id: string }
         Returns: boolean
@@ -2127,6 +3015,10 @@ export type Database = {
         Args: { p_object_name: string }
         Returns: boolean
       }
+      storage_can_read_finance_file: {
+        Args: { p_object_name: string }
+        Returns: boolean
+      }
       storage_can_read_people_media: {
         Args: { p_object_name: string }
         Returns: boolean
@@ -2139,6 +3031,10 @@ export type Database = {
         Args: { p_object_name: string }
         Returns: boolean
       }
+      storage_can_upload_finance_file: {
+        Args: { p_object_name: string }
+        Returns: boolean
+      }
       storage_can_upload_people_media: {
         Args: { p_object_name: string }
         Returns: boolean
@@ -2147,6 +3043,7 @@ export type Database = {
         Args: { p_object_name: string }
         Returns: boolean
       }
+      submit_expense: { Args: { p_expense_id: string }; Returns: Json }
       update_document_category: {
         Args: {
           p_description?: string
@@ -2234,6 +3131,7 @@ export type Database = {
         Returns: {
           address: string | null
           created_at: string
+          default_currency: string
           email: string | null
           id: string
           logo_url: string | null
@@ -2256,9 +3154,26 @@ export type Database = {
         Args: { p_permission_ids: string[]; p_role_id: string }
         Returns: boolean
       }
+      void_expense: {
+        Args: { p_expense_id: string; p_reason: string }
+        Returns: Json
+      }
+      void_payment: {
+        Args: { p_payment_id: string; p_reason: string }
+        Returns: Json
+      }
     }
     Enums: {
       access_level: "view" | "edit" | "manage"
+      bill_status:
+        | "draft"
+        | "received"
+        | "approved"
+        | "partially_paid"
+        | "paid"
+        | "overdue"
+        | "void"
+      category_type: "expense" | "income" | "both"
       document_access_mode: "organization" | "restricted" | "private"
       document_confidentiality:
         | "general"
@@ -2287,6 +3202,33 @@ export type Database = {
         | "temporary"
         | "intern"
         | "consultant"
+      expense_status:
+        | "draft"
+        | "submitted"
+        | "approved"
+        | "rejected"
+        | "paid"
+        | "void"
+      finance_account_type:
+        | "bank"
+        | "cash"
+        | "petty_cash"
+        | "wallet"
+        | "card"
+        | "other"
+      finance_file_entity_type: "expense" | "bill" | "payment" | "vendor"
+      finance_file_type:
+        | "bill"
+        | "invoice"
+        | "receipt"
+        | "payment_voucher"
+        | "cheque_copy"
+        | "bank_slip"
+        | "purchase_order"
+        | "quotation"
+        | "approval_document"
+        | "supporting_evidence"
+        | "other"
       group_type: "committee" | "department" | "team" | "custom"
       member_status: "active" | "inactive" | "suspended" | "former"
       occasion_status:
@@ -2295,6 +3237,14 @@ export type Database = {
         | "completed"
         | "cancelled"
         | "archived"
+      payment_method:
+        | "cash"
+        | "bank_transfer"
+        | "cheque"
+        | "card"
+        | "mobile_wallet"
+        | "other"
+      payment_status: "draft" | "completed" | "void"
       person_status: "active" | "inactive" | "former" | "deceased" | "archived"
       personnel_file_sensitivity: "normal" | "private" | "highly_restricted"
       profile_status: "invited" | "active" | "suspended" | "disabled"
@@ -2429,6 +3379,16 @@ export const Constants = {
   public: {
     Enums: {
       access_level: ["view", "edit", "manage"],
+      bill_status: [
+        "draft",
+        "received",
+        "approved",
+        "partially_paid",
+        "paid",
+        "overdue",
+        "void",
+      ],
+      category_type: ["expense", "income", "both"],
       document_access_mode: ["organization", "restricted", "private"],
       document_confidentiality: [
         "general",
@@ -2461,6 +3421,36 @@ export const Constants = {
         "intern",
         "consultant",
       ],
+      expense_status: [
+        "draft",
+        "submitted",
+        "approved",
+        "rejected",
+        "paid",
+        "void",
+      ],
+      finance_account_type: [
+        "bank",
+        "cash",
+        "petty_cash",
+        "wallet",
+        "card",
+        "other",
+      ],
+      finance_file_entity_type: ["expense", "bill", "payment", "vendor"],
+      finance_file_type: [
+        "bill",
+        "invoice",
+        "receipt",
+        "payment_voucher",
+        "cheque_copy",
+        "bank_slip",
+        "purchase_order",
+        "quotation",
+        "approval_document",
+        "supporting_evidence",
+        "other",
+      ],
       group_type: ["committee", "department", "team", "custom"],
       member_status: ["active", "inactive", "suspended", "former"],
       occasion_status: [
@@ -2470,6 +3460,15 @@ export const Constants = {
         "cancelled",
         "archived",
       ],
+      payment_method: [
+        "cash",
+        "bank_transfer",
+        "cheque",
+        "card",
+        "mobile_wallet",
+        "other",
+      ],
+      payment_status: ["draft", "completed", "void"],
       person_status: ["active", "inactive", "former", "deceased", "archived"],
       personnel_file_sensitivity: ["normal", "private", "highly_restricted"],
       profile_status: ["invited", "active", "suspended", "disabled"],

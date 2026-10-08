@@ -14,6 +14,7 @@ import type {
   AuthContextValue,
   AccountStatus,
   UserProfile,
+  CanonicalPerson,
   UserMember,
   UserOrganization,
   UserRole,
@@ -23,6 +24,7 @@ interface RawAuthContextResponse {
   authenticated: boolean
   has_profile?: boolean
   profile?: UserProfile
+  person?: CanonicalPerson | null
   member?: UserMember | null
   organization?: UserOrganization | null
   roles?: UserRole[]
@@ -33,6 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<UserProfile | null>(null)
+  const [person, setPerson] = useState<CanonicalPerson | null>(null)
   const [member, setMember] = useState<UserMember | null>(null)
   const [organization, setOrganization] = useState<UserOrganization | null>(null)
   const [roles, setRoles] = useState<UserRole[]>([])
@@ -46,6 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(null)
       setUser(null)
       setProfile(null)
+      setPerson(null)
       setMember(null)
       setOrganization(null)
       setRoles([])
@@ -74,6 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!res.has_profile || !res.profile) {
         console.warn('Authenticated user has no portal profile record:', currentSession.user.id)
         setProfile(null)
+        setPerson(null)
         setMember(null)
         setOrganization(null)
         setRoles([])
@@ -81,6 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setAccountStatus('missing_profile')
       } else {
         setProfile(res.profile)
+        setPerson(res.person || null)
         setMember(res.member || null)
         setOrganization(res.organization || null)
         setRoles(res.roles || [])
@@ -185,6 +191,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(null)
       setUser(null)
       setProfile(null)
+      setPerson(null)
       setMember(null)
       setOrganization(null)
       setRoles([])
@@ -227,6 +234,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       session,
       user,
       profile,
+      person,
       member,
       organization,
       roles,
@@ -246,6 +254,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       session,
       user,
       profile,
+      person,
       member,
       organization,
       roles,

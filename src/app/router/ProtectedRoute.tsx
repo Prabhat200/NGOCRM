@@ -11,7 +11,7 @@ export interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ requiredPermission, children }: ProtectedRouteProps) {
-  const { isLoading, session, user, accountStatus, hasPermission } = useAuth()
+  const { isLoading, session, user, profile, accountStatus, hasPermission } = useAuth()
   const location = useLocation()
 
   // 1. Initial application bootstrap loading state
@@ -28,6 +28,11 @@ export function ProtectedRoute({ requiredPermission, children }: ProtectedRouteP
   // 3. Authenticated user but inactive account state (invited, suspended, disabled, missing_profile)
   if (accountStatus !== 'active') {
     return <AccountStatusScreen status={accountStatus || 'missing_profile'} />
+  }
+
+  // 3b. Forced password change on first login or temporary credential issuance (Rule 47)
+  if (profile?.must_change_password && location.pathname !== '/change-password') {
+    return <Navigate to="/change-password" replace />
   }
 
   // 4. Permission-restricted route guard

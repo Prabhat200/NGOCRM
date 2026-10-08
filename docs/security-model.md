@@ -92,3 +92,73 @@ Documents support three distinct access modes:
 3. **Self-Profile Protection**: Users cannot modify their own `organization_id`, `status`, or `member_id`.
 4. **Append-Only Auditing**: `activity_logs` rejects direct client inserts/updates; records are generated via `log_activity()` deriving the actor server-side.
 5. **Creator Bootstrap**: `create_document()` RPC atomically creates the document record and grants initial `manage` access to the creator without exposing open ACL tables.
+
+---
+
+## 9. Canonical People & Personnel Access Model (Phase 2)
+
+### 9.1 The Identity Boundary
+* **`people` (Canonical Human)**: Represents a single human identity within the organization. A person may be a member, an employee, a volunteer, an advisor, or hold multiple organizational roles simultaneously without identity duplication.
+* **`members` (NGO Membership)**: Governs legal NGO membership parameters (`membership_number`, `joined_at`, `status`). Linked strictly to `people(id)`.
+* **`employment_records` (Job History)**: Stores employment contracts, designations, departments (`groups`), supervisors, and statuses (`active`, `probation`, `on_leave`, `suspended`, `ended`).
+* **`profiles` (Portal Account)**: Links an authenticated `auth.users` identity to `people.id`. A user is no longer required to be an NGO member to hold an active portal login (e.g. non-member staff or contractors).
+* **Single Account Constraint**: Guaranteed by `UNIQUE (person_id)` on `profiles` when non-null.
+
+### 9.2 Personnel Data Classification
+1. **Directory Data (`people.view_directory`)**:
+   * General employee/member directory: display name, photo, designation, department/group, status.
+2. **Private Personnel Data (`people.view_private`)**:
+   * Personal email, phone numbers, home address, date of birth, emergency contacts.
+   * Access restricted to HR Admins, Super Admins, and self-access for own record.
+3. **Personnel Files (`personnel_files.view`, `personnel_files.download`, `personnel_files.manage`)**:
+   * Completely separated from normal organizational documents.
+   * Categorized by sensitivity level:
+     * `normal`: Resumes, certificates, training documents.
+     * `private`: Employment contracts, appointment letters, performance appraisals.
+     * `highly_restricted`: National IDs, passports, PAN documents, disciplinary records.
+   * Highly restricted documents require `personnel_files.manage` authorization.
+
+---
+
+## 10. Personnel Storage Security
+
+1. **`personnel-files` Bucket**:
+   * Strictly **PRIVATE** (`public = false`).
+   * Path: `{organization_id}/{person_id}/{personnel_file_id}/{version_id}/{filename}`
+   * Read access (`storage_can_read_personnel_file`): Requires authenticated profile + same organization + `personnel_files.download` + file visibility validation.
+   * Upload access (`storage_can_upload_personnel_file`): Requires `personnel_files.upload`.
+   * Update and Delete: Default-deny (immutable versioning).
+   * Downloads are audited server-side via `log_personnel_file_download` RPC (`personnel_file.downloaded`).
+2. **`people-media` Bucket**:
+   * Strictly **PRIVATE** (`public = false`).
+   * Path: `{organization_id}/{person_id}/profile/{filename}`
+   * Read access (`storage_can_read_people_media`): Allowed for active members of the same organization.
+   * Upload access (`storage_can_upload_people_media`): Allowed for the subject themselves or administrators with `people.edit`.
+
+---
+
+## 11. Portal Account Provisioning & Password Security Lifecycle
+
+### 11.1 Zero Password Storage Architecture
+* **Under NO circumstance are plaintext or reversible passwords stored in application tables** (`people`, `profiles`, `members`, etc.). Passwords reside exclusively in Supabase Auth's bcrypt/argon2 hashing infrastructure.
+* Passwords are never written to `activity_logs`, console logs, HTTP metadata, or localStorage.
+* Administrators cannot view existing employee passwords. The system only supports:
+  1. Sending a password reset link.
+  2. Generating/setting a temporary password.
+
+### 11.2 Account Setup Modes
+1. **Invitation Mode (Recommended Default)**:
+   * Admin selects person, email, and roles.
+   * System triggers `inviteUserByEmail` via trusted `provision-user` edge function.
+   * User creates their own password upon accepting the secure invite.
+   * Profile created with `status = 'invited'`, `must_change_password = false`.
+2. **Temporary Password Mode**:
+   * Admin chooses to provision immediately with a temporary password.
+   * System generates a cryptographically strong 16-character temporary credential (or validates admin-provided password against security policies).
+   * Account created via Admin API with `status = 'active'`, `must_change_password = true`.
+   * Temporary password is returned **ONCE** in the provisioning HTTP response to the authorized administrator; never stored or logged.
+
+### 11.3 Forced First-Login Password Change
+* Profiles with `must_change_password = true` are blocked by `ProtectedRoute` from accessing any portal routes and immediately redirected to `/change-password`.
+* Once the user updates their password via Supabase Auth, the secure `complete_first_login_password_change()` RPC sets `must_change_password = false` and logs `portal_user.password_changed`.
+

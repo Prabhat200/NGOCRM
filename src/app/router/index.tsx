@@ -5,6 +5,7 @@ import { LoginPage } from '@/features/auth/pages/LoginPage'
 import { ForgotPasswordPage } from '@/features/auth/pages/ForgotPasswordPage'
 import { ResetPasswordPage } from '@/features/auth/pages/ResetPasswordPage'
 import { AcceptInvitePage } from '@/features/auth/pages/AcceptInvitePage'
+import { ChangePasswordPage } from '@/features/auth/pages/ChangePasswordPage'
 import { ProfilePage } from '@/features/auth/pages/ProfilePage'
 import { DashboardPage } from '@/features/dashboard/pages/DashboardPage'
 import { DocumentsPage } from '@/features/documents/pages/DocumentsPage'
@@ -56,6 +57,14 @@ export const router = createBrowserRouter([
   {
     path: '/auth/accept-invite',
     element: <AcceptInvitePage />,
+  },
+  {
+    path: '/change-password',
+    element: (
+      <ProtectedRoute>
+        <ChangePasswordPage />
+      </ProtectedRoute>
+    ),
   },
 
   // Authenticated Application Shell routes

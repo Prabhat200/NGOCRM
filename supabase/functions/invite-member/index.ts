@@ -104,7 +104,7 @@ serve(async (req: Request) => {
     // 4. Verify member belongs to caller's organization (Rule 28)
     const { data: member, error: memberError } = await callerClient
       .from('members')
-      .select('id, organization_id, full_name, email, status')
+      .select('id, organization_id, person_id, full_name, email, status')
       .eq('id', member_id)
       .eq('organization_id', callerProfile.organization_id)
       .single()
@@ -204,8 +204,10 @@ serve(async (req: Request) => {
         id: newAuthUserId,
         organization_id: callerProfile.organization_id,
         member_id: member.id,
+        person_id: member.person_id || undefined,
         display_name: member.full_name,
         status: 'invited',
+        must_change_password: false,
       })
 
       if (insertProfileError) {

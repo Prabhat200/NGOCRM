@@ -562,6 +562,161 @@ export type Database = {
           },
         ]
       }
+      employment_compensation: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          currency: string
+          effective_from: string
+          effective_to: string | null
+          employment_record_id: string
+          id: string
+          notes: string | null
+          organization_id: string
+          pay_frequency: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          effective_from: string
+          effective_to?: string | null
+          employment_record_id: string
+          id?: string
+          notes?: string | null
+          organization_id: string
+          pay_frequency?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          effective_from?: string
+          effective_to?: string | null
+          employment_record_id?: string
+          id?: string
+          notes?: string | null
+          organization_id?: string
+          pay_frequency?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employment_compensation_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_compensation_employment_org"
+            columns: ["organization_id", "employment_record_id"]
+            isOneToOne: false
+            referencedRelation: "employment_records"
+            referencedColumns: ["organization_id", "id"]
+          },
+        ]
+      }
+      employment_records: {
+        Row: {
+          archived_at: string | null
+          created_at: string
+          created_by: string | null
+          department_group_id: string | null
+          designation: string
+          employee_number: string | null
+          employment_type: Database["public"]["Enums"]["employment_type"]
+          ended_at: string | null
+          id: string
+          organization_id: string
+          person_id: string
+          probation_ends_at: string | null
+          started_at: string
+          status: Database["public"]["Enums"]["employment_status"]
+          supervisor_person_id: string | null
+          termination_reason: string | null
+          updated_at: string
+          updated_by: string | null
+          work_location: string | null
+        }
+        Insert: {
+          archived_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          department_group_id?: string | null
+          designation: string
+          employee_number?: string | null
+          employment_type?: Database["public"]["Enums"]["employment_type"]
+          ended_at?: string | null
+          id?: string
+          organization_id: string
+          person_id: string
+          probation_ends_at?: string | null
+          started_at: string
+          status?: Database["public"]["Enums"]["employment_status"]
+          supervisor_person_id?: string | null
+          termination_reason?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          work_location?: string | null
+        }
+        Update: {
+          archived_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          department_group_id?: string | null
+          designation?: string
+          employee_number?: string | null
+          employment_type?: Database["public"]["Enums"]["employment_type"]
+          ended_at?: string | null
+          id?: string
+          organization_id?: string
+          person_id?: string
+          probation_ends_at?: string | null
+          started_at?: string
+          status?: Database["public"]["Enums"]["employment_status"]
+          supervisor_person_id?: string | null
+          termination_reason?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          work_location?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employment_records_department_group_id_fkey"
+            columns: ["department_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employment_records_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_employment_person_org"
+            columns: ["organization_id", "person_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fk_employment_supervisor_org"
+            columns: ["organization_id", "supervisor_person_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["organization_id", "id"]
+          },
+        ]
+      }
       group_members: {
         Row: {
           created_at: string
@@ -686,6 +841,7 @@ export type Database = {
           middle_name: string | null
           notes: string | null
           organization_id: string
+          person_id: string | null
           phone: string | null
           position_title: string | null
           status: Database["public"]["Enums"]["member_status"]
@@ -707,6 +863,7 @@ export type Database = {
           middle_name?: string | null
           notes?: string | null
           organization_id: string
+          person_id?: string | null
           phone?: string | null
           position_title?: string | null
           status?: Database["public"]["Enums"]["member_status"]
@@ -728,6 +885,7 @@ export type Database = {
           middle_name?: string | null
           notes?: string | null
           organization_id?: string
+          person_id?: string | null
           phone?: string | null
           position_title?: string | null
           status?: Database["public"]["Enums"]["member_status"]
@@ -735,6 +893,13 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_members_person_org"
+            columns: ["organization_id", "person_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["organization_id", "id"]
+          },
           {
             foreignKeyName: "members_organization_id_fkey"
             columns: ["organization_id"]
@@ -1005,6 +1170,83 @@ export type Database = {
         }
         Relationships: []
       }
+      people: {
+        Row: {
+          address: string | null
+          archived_at: string | null
+          created_at: string
+          created_by: string | null
+          date_of_birth: string | null
+          first_name: string
+          gender: string | null
+          id: string
+          last_name: string
+          middle_name: string | null
+          organization_id: string
+          photo_path: string | null
+          preferred_name: string | null
+          primary_email: string | null
+          primary_phone: string | null
+          secondary_email: string | null
+          secondary_phone: string | null
+          status: Database["public"]["Enums"]["person_status"]
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          address?: string | null
+          archived_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          date_of_birth?: string | null
+          first_name: string
+          gender?: string | null
+          id?: string
+          last_name: string
+          middle_name?: string | null
+          organization_id: string
+          photo_path?: string | null
+          preferred_name?: string | null
+          primary_email?: string | null
+          primary_phone?: string | null
+          secondary_email?: string | null
+          secondary_phone?: string | null
+          status?: Database["public"]["Enums"]["person_status"]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          address?: string | null
+          archived_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          date_of_birth?: string | null
+          first_name?: string
+          gender?: string | null
+          id?: string
+          last_name?: string
+          middle_name?: string | null
+          organization_id?: string
+          photo_path?: string | null
+          preferred_name?: string | null
+          primary_email?: string | null
+          primary_phone?: string | null
+          secondary_email?: string | null
+          secondary_phone?: string | null
+          status?: Database["public"]["Enums"]["person_status"]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "people_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       permissions: {
         Row: {
           code: string
@@ -1026,6 +1268,381 @@ export type Database = {
         }
         Relationships: []
       }
+      person_emergency_contacts: {
+        Row: {
+          address: string | null
+          created_at: string
+          email: string | null
+          id: string
+          is_primary: boolean
+          name: string
+          organization_id: string
+          person_id: string
+          phone: string
+          relationship: string
+          secondary_phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_primary?: boolean
+          name: string
+          organization_id: string
+          person_id: string
+          phone: string
+          relationship: string
+          secondary_phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_primary?: boolean
+          name?: string
+          organization_id?: string
+          person_id?: string
+          phone?: string
+          relationship?: string
+          secondary_phone?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_emergency_contacts_person_org"
+            columns: ["organization_id", "person_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "person_emergency_contacts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      person_notes: {
+        Row: {
+          archived_at: string | null
+          content: string
+          created_at: string
+          created_by: string | null
+          id: string
+          organization_id: string
+          person_id: string
+          title: string | null
+          type: string
+          updated_at: string
+          visibility_level: string
+        }
+        Insert: {
+          archived_at?: string | null
+          content: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          organization_id: string
+          person_id: string
+          title?: string | null
+          type?: string
+          updated_at?: string
+          visibility_level?: string
+        }
+        Update: {
+          archived_at?: string | null
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          organization_id?: string
+          person_id?: string
+          title?: string | null
+          type?: string
+          updated_at?: string
+          visibility_level?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_person_notes_person_org"
+            columns: ["organization_id", "person_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "person_notes_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      person_relationships: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          ended_at: string | null
+          id: string
+          is_active: boolean
+          notes: string | null
+          organization_id: string
+          person_id: string
+          relationship_type: string
+          started_at: string | null
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          ended_at?: string | null
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          organization_id: string
+          person_id: string
+          relationship_type: string
+          started_at?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          ended_at?: string | null
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          organization_id?: string
+          person_id?: string
+          relationship_type?: string
+          started_at?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_relationships_person_org"
+            columns: ["organization_id", "person_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "person_relationships_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      personnel_file_categories: {
+        Row: {
+          archived_at: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_system_category: boolean
+          name: string
+          organization_id: string
+          sensitivity_level: Database["public"]["Enums"]["personnel_file_sensitivity"]
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          archived_at?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_system_category?: boolean
+          name: string
+          organization_id: string
+          sensitivity_level?: Database["public"]["Enums"]["personnel_file_sensitivity"]
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          archived_at?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_system_category?: boolean
+          name?: string
+          organization_id?: string
+          sensitivity_level?: Database["public"]["Enums"]["personnel_file_sensitivity"]
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "personnel_file_categories_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      personnel_file_versions: {
+        Row: {
+          change_note: string | null
+          checksum: string | null
+          file_extension: string | null
+          file_size: number
+          id: string
+          invalidated_at: string | null
+          invalidated_by: string | null
+          invalidation_reason: string | null
+          mime_type: string
+          organization_id: string
+          original_filename: string
+          personnel_file_id: string
+          storage_bucket: string
+          storage_path: string
+          uploaded_at: string
+          uploaded_by: string | null
+          version_number: number
+        }
+        Insert: {
+          change_note?: string | null
+          checksum?: string | null
+          file_extension?: string | null
+          file_size: number
+          id?: string
+          invalidated_at?: string | null
+          invalidated_by?: string | null
+          invalidation_reason?: string | null
+          mime_type: string
+          organization_id: string
+          original_filename: string
+          personnel_file_id: string
+          storage_bucket?: string
+          storage_path: string
+          uploaded_at?: string
+          uploaded_by?: string | null
+          version_number: number
+        }
+        Update: {
+          change_note?: string | null
+          checksum?: string | null
+          file_extension?: string | null
+          file_size?: number
+          id?: string
+          invalidated_at?: string | null
+          invalidated_by?: string | null
+          invalidation_reason?: string | null
+          mime_type?: string
+          organization_id?: string
+          original_filename?: string
+          personnel_file_id?: string
+          storage_bucket?: string
+          storage_path?: string
+          uploaded_at?: string
+          uploaded_by?: string | null
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_personnel_versions_file_org"
+            columns: ["organization_id", "personnel_file_id"]
+            isOneToOne: false
+            referencedRelation: "personnel_files"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "personnel_file_versions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      personnel_files: {
+        Row: {
+          archived_at: string | null
+          category_id: string
+          created_at: string
+          created_by: string | null
+          current_version_id: string | null
+          description: string | null
+          document_date: string | null
+          expires_at: string | null
+          id: string
+          organization_id: string
+          person_id: string
+          sensitivity_level: Database["public"]["Enums"]["personnel_file_sensitivity"]
+          title: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          archived_at?: string | null
+          category_id: string
+          created_at?: string
+          created_by?: string | null
+          current_version_id?: string | null
+          description?: string | null
+          document_date?: string | null
+          expires_at?: string | null
+          id?: string
+          organization_id: string
+          person_id: string
+          sensitivity_level?: Database["public"]["Enums"]["personnel_file_sensitivity"]
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          archived_at?: string | null
+          category_id?: string
+          created_at?: string
+          created_by?: string | null
+          current_version_id?: string | null
+          description?: string | null
+          document_date?: string | null
+          expires_at?: string | null
+          id?: string
+          organization_id?: string
+          person_id?: string
+          sensitivity_level?: Database["public"]["Enums"]["personnel_file_sensitivity"]
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_personnel_files_category_org"
+            columns: ["organization_id", "category_id"]
+            isOneToOne: false
+            referencedRelation: "personnel_file_categories"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fk_personnel_files_person_org"
+            columns: ["organization_id", "person_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "personnel_files_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1034,7 +1651,9 @@ export type Database = {
           id: string
           last_active_at: string | null
           member_id: string | null
+          must_change_password: boolean
           organization_id: string
+          person_id: string | null
           phone: string | null
           status: Database["public"]["Enums"]["profile_status"]
           updated_at: string
@@ -1046,7 +1665,9 @@ export type Database = {
           id: string
           last_active_at?: string | null
           member_id?: string | null
+          must_change_password?: boolean
           organization_id: string
+          person_id?: string | null
           phone?: string | null
           status?: Database["public"]["Enums"]["profile_status"]
           updated_at?: string
@@ -1058,7 +1679,9 @@ export type Database = {
           id?: string
           last_active_at?: string | null
           member_id?: string | null
+          must_change_password?: boolean
           organization_id?: string
+          person_id?: string | null
           phone?: string | null
           status?: Database["public"]["Enums"]["profile_status"]
           updated_at?: string
@@ -1069,6 +1692,13 @@ export type Database = {
             columns: ["organization_id", "member_id"]
             isOneToOne: false
             referencedRelation: "members"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fk_profiles_person_org"
+            columns: ["organization_id", "person_id"]
+            isOneToOne: false
+            referencedRelation: "people"
             referencedColumns: ["organization_id", "id"]
           },
           {
@@ -1272,6 +1902,12 @@ export type Database = {
       can_edit_document: { Args: { p_document_id: string }; Returns: boolean }
       can_manage_document: { Args: { p_document_id: string }; Returns: boolean }
       can_view_document: { Args: { p_document_id: string }; Returns: boolean }
+      can_view_person_private: {
+        Args: { p_person_id: string }
+        Returns: boolean
+      }
+      can_view_personnel_file: { Args: { p_file_id: string }; Returns: boolean }
+      complete_first_login_password_change: { Args: never; Returns: boolean }
       create_custom_role: {
         Args: {
           p_description?: string
@@ -1379,6 +2015,7 @@ export type Database = {
       }
       current_member_id: { Args: never; Returns: string }
       current_organization_id: { Args: never; Returns: string }
+      current_person_id: { Args: never; Returns: string }
       current_profile_id: { Args: never; Returns: string }
       delete_custom_role: { Args: { p_role_id: string }; Returns: boolean }
       get_activity_logs: {
@@ -1448,6 +2085,10 @@ export type Database = {
         Args: { p_document_id: string; p_version_id?: string }
         Returns: boolean
       }
+      log_personnel_file_download: {
+        Args: { p_personnel_file_id: string; p_version_id?: string }
+        Returns: boolean
+      }
       manage_document_access: {
         Args: {
           p_access_mode?: Database["public"]["Enums"]["document_access_mode"]
@@ -1486,7 +2127,23 @@ export type Database = {
         Args: { p_object_name: string }
         Returns: boolean
       }
+      storage_can_read_people_media: {
+        Args: { p_object_name: string }
+        Returns: boolean
+      }
+      storage_can_read_personnel_file: {
+        Args: { p_object_name: string }
+        Returns: boolean
+      }
       storage_can_upload_document_file: {
+        Args: { p_object_name: string }
+        Returns: boolean
+      }
+      storage_can_upload_people_media: {
+        Args: { p_object_name: string }
+        Returns: boolean
+      }
+      storage_can_upload_personnel_file: {
         Args: { p_object_name: string }
         Returns: boolean
       }
@@ -1616,6 +2273,20 @@ export type Database = {
         | "final"
         | "superseded"
         | "archived"
+      employment_status:
+        | "active"
+        | "probation"
+        | "on_leave"
+        | "suspended"
+        | "ended"
+      employment_type:
+        | "permanent"
+        | "full_time"
+        | "part_time"
+        | "contract"
+        | "temporary"
+        | "intern"
+        | "consultant"
       group_type: "committee" | "department" | "team" | "custom"
       member_status: "active" | "inactive" | "suspended" | "former"
       occasion_status:
@@ -1624,6 +2295,8 @@ export type Database = {
         | "completed"
         | "cancelled"
         | "archived"
+      person_status: "active" | "inactive" | "former" | "deceased" | "archived"
+      personnel_file_sensitivity: "normal" | "private" | "highly_restricted"
       profile_status: "invited" | "active" | "suspended" | "disabled"
     }
     CompositeTypes: {
@@ -1772,6 +2445,22 @@ export const Constants = {
         "superseded",
         "archived",
       ],
+      employment_status: [
+        "active",
+        "probation",
+        "on_leave",
+        "suspended",
+        "ended",
+      ],
+      employment_type: [
+        "permanent",
+        "full_time",
+        "part_time",
+        "contract",
+        "temporary",
+        "intern",
+        "consultant",
+      ],
       group_type: ["committee", "department", "team", "custom"],
       member_status: ["active", "inactive", "suspended", "former"],
       occasion_status: [
@@ -1781,6 +2470,8 @@ export const Constants = {
         "cancelled",
         "archived",
       ],
+      person_status: ["active", "inactive", "former", "deceased", "archived"],
+      personnel_file_sensitivity: ["normal", "private", "highly_restricted"],
       profile_status: ["invited", "active", "suspended", "disabled"],
     },
   },

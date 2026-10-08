@@ -10,12 +10,27 @@ export type AccountStatus =
 export interface UserProfile {
   id: string
   organization_id: string
+  person_id: string | null
   member_id: string | null
   display_name: string | null
   avatar_url: string | null
   phone: string | null
   status: 'invited' | 'active' | 'suspended' | 'disabled'
+  must_change_password: boolean
   last_active_at: string | null
+}
+
+export interface CanonicalPerson {
+  id: string
+  first_name: string
+  middle_name: string | null
+  last_name: string
+  preferred_name: string | null
+  full_name: string
+  primary_email: string | null
+  primary_phone: string | null
+  photo_path: string | null
+  status: 'active' | 'inactive' | 'former' | 'deceased' | 'archived'
 }
 
 export interface UserMember {
@@ -48,6 +63,7 @@ export interface AuthContextValue {
   session: Session | null
   user: User | null
   profile: UserProfile | null
+  person: CanonicalPerson | null
   member: UserMember | null
   organization: UserOrganization | null
   roles: UserRole[]
